@@ -1,0 +1,1 @@
+class ArticleNotFound implements Exception {}
