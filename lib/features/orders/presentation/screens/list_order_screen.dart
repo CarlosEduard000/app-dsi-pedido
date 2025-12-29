@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/widgets/side_menu.dart';
 import '../../../auth/presentation/providers/providers.dart';
 import '../providers/providers.dart';
-import '../widgets/widgets.dart'; // Tu archivo de barril
+import '../widgets/widgets.dart';
 
 class ListOrderScreen extends ConsumerStatefulWidget {
   static const name = 'list_order';
@@ -18,6 +18,32 @@ class ListOrderScreen extends ConsumerStatefulWidget {
 
 class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  // 1. Controlador para detectar el movimiento del Scroll
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Agregamos el "oyente" al controlador
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    // 3. Limpiamos el controlador al salir
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Lógica del Infinite Scroll
+  void _onScroll() {
+    // Si la posición actual + 400 pixeles es mayor o igual al máximo posible...
+    if ((_scrollController.position.pixels + 400) >= _scrollController.position.maxScrollExtent) {
+      // Llamamos a la paginación
+      ref.read(ordersProvider.notifier).loadNextPage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +51,7 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // 1. Escuchamos el estado de los pedidos y el usuario
+    // Escuchamos el estado de los pedidos y el usuario
     final ordersState = ref.watch(ordersProvider);
     final user = ref.watch(authProvider).user;
 
@@ -67,34 +93,50 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
             },
             onRefresh: () => ref.read(ordersProvider.notifier).loadOrders(),
             child: SingleChildScrollView(
+              // 4. Conectamos el controlador al ScrollView
+              controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  // Pasamos la lista de pedidos directamente
+                  
+                  // Pasamos el SUMMARY para los totales y la LISTA para el detalle
                   _buildProfileCard(
                     size,
                     colors,
                     isDark,
                     user,
                     ordersState.orders,
+                    ordersState.summary, // <--- CAMBIO: Pasamos el resumen
                   ),
                   const SizedBox(height: 20),
 
-                  // Manejo de estados de la API
+                  // Manejo de estados de la API (Carga Inicial)
                   if (ordersState.isLoading && ordersState.orders.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(40),
                       child: CircularProgressIndicator(),
                     )
-                  else if (ordersState.errorMessage != null)
-                    Text(ordersState.errorMessage!),
-                  // else
-                  //   Column(
-                  //     children: [
-                  //       //_buildTableHeader(),
-                  //       // _buildOrdersList(ordersState.orders, colors, isDark),
-                  //     ],
-                  //   ),
+                  else if (ordersState.errorMessage != null && ordersState.orders.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        ordersState.errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  
+                  // 5. Indicador de carga inferior (Paginación)
+                  if (ordersState.isLoading && ordersState.orders.isNotEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 30),
+                      child: SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+
                   const SizedBox(height: 30),
                 ],
               ),
@@ -111,7 +153,11 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     bool isDark,
     dynamic user,
     List<Order> orders,
+    OrderSummary? summary, // <--- CAMBIO: Recibimos el resumen
   ) {
+    
+    // <--- CAMBIO: Eliminamos el cálculo manual (orders.fold)
+    
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 60),
       child: Stack(
@@ -135,8 +181,11 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 60),
+                
+                // <--- CAMBIO: Usamos summary.totalAmount
                 Text(
-                  'S/. 0.00', // Podrías calcular el total recorriendo la lista 'orders'
+                  // Si summary es null (cargando), mostramos 0.00
+                  'S/. ${summary?.totalAmount.toStringAsFixed(2) ?? "0.00"}', 
                   style: GoogleFonts.roboto(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -148,6 +197,7 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 const SizedBox(height: 15),
+                
                 Text(
                   user?.fullName ?? 'Usuario',
                   textAlign: TextAlign.center,
@@ -168,12 +218,23 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   child: Divider(thickness: 0.5),
                 ),
-                _buildStatsRow(colors),
+
+                // <--- CAMBIO: Pasamos el summary en vez de orders
+                _buildStatsRow(colors, summary),
+                
                 const SizedBox(height: 20),
-                OrdersTableHeader(),
+                const OrdersTableHeader(), 
                 const SizedBox(height: 20),
-                // Aquí usamos 'orders' que es la lista recibida por parámetro
-                OrdersList(orders: orders.toList()),
+                
+                // Lista de pedidos (Esto se mantiene igual, usando la lista)
+                if (orders.isEmpty) // Quitamos la validación de isLoading aquí para que se vea la lista vacía si corresponde
+                   const Padding(
+                     padding: EdgeInsets.all(20.0),
+                     child: Text('No hay pedidos registrados'),
+                   )
+                else
+                   OrdersList(orders: orders.toList()),
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -195,27 +256,30 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     );
   }
 
-  Widget _buildStatsRow(ColorScheme colors) {
+  // <--- CAMBIO: Recibe OrderSummary? en lugar de List<Order>
+  Widget _buildStatsRow(ColorScheme colors, OrderSummary? summary) {
+    // Ya no calculamos nada aquí, solo pintamos los datos del API
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         StatItem(
-          value: '12',
+          value: '${summary?.qtyAprobados ?? 0}',
           label: 'Pedidos\naprobados',
           valueColor: colors.secondary,
         ),
         StatItem(
-          value: '24',
+          value: '${summary?.qtyPicking ?? 0}',
           label: 'Pedidos\nPicking',
           valueColor: colors.secondary,
         ),
         StatItem(
-          value: '35',
+          value: '${summary?.qtyDespachados ?? 0}',
           label: 'Pedidos\nDespachados',
           valueColor: colors.secondary,
         ),
         StatItem(
-          value: '1',
+          value: '${summary?.qtyRechazados ?? 0}',
           label: 'Pedidos\nrechazados',
           valueColor: colors.secondary,
         ),

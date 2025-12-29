@@ -8,6 +8,7 @@ class Order {
   final String paymentType; // Ej: 'CONTADO', 'CRED 30'
   final double amount;
   final String currency;
+  final int idVendedor;
 
   Order({
     required this.id,
@@ -17,6 +18,7 @@ class Order {
     required this.paymentType,
     required this.amount,
     this.currency = 'S/.', // Valor por defecto
+    required this.idVendedor
   });
 
   // Getter para mostrar el importe formateado (Ej: S/. 1,200.00)

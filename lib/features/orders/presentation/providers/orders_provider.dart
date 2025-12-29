@@ -1,55 +1,148 @@
-import 'order_state_provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../../domain/domain.dart';
+import '../../infrastructure/infrastructure.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
-final ordersProvider = StateNotifierProvider<OrdersNotifier, OrderStateProvider>((
-  ref,
-) {
-  // 1. Obtenemos el repositorio (que ya debería estar definido en tus providers)
-  // final ordersRepository = ref.watch(ordersRepositoryProvider);
+// --- STATE ---
+class OrdersState {
+  final List<Order> orders;
+  final OrderSummary? summary;
+  final bool isLoading;
+  final bool isLastPage;
+  final String? errorMessage;
 
-  // 2. Opcional: Escuchamos el ID del vendedor desde el AuthProvider
-  final user = ref.watch(authProvider).user;
-  final idVendedor = user?.idVendedor ?? 0;
+  OrdersState({
+    this.orders = const [],
+    this.summary,
+    this.isLoading = false,
+    this.isLastPage = false,
+    this.errorMessage,
+  });
 
-  return OrdersNotifier(
-    // repository: ordersRepository,
-    idVendedor: idVendedor,
-  );
-});
+  OrdersState copyWith({
+    List<Order>? orders,
+    OrderSummary? summary,
+    bool? isLoading,
+    bool? isLastPage,
+    String? errorMessage,
+  }) =>
+      OrdersState(
+        orders: orders ?? this.orders,
+        summary: summary ?? this.summary,
+        isLoading: isLoading ?? this.isLoading,
+        isLastPage: isLastPage ?? this.isLastPage,
+        errorMessage: errorMessage ?? this.errorMessage,
+      );
+}
 
-class OrdersNotifier extends StateNotifier<OrderStateProvider> {
-  // final OrdersRepository repository;
+// --- NOTIFIER ---
+class OrdersNotifier extends StateNotifier<OrdersState> {
+  final OrderRepository ordersRepository;
   final int idVendedor;
 
-  OrdersNotifier({
-    // required this.repository,
-    required this.idVendedor,
-  }) : super(OrderStateProvider()) {
-    // Cargamos los pedidos automáticamente al crear el provider
+  int _currentPage = 1;
+  bool _isLoadingNextPage = false;
+
+  OrdersNotifier({required this.ordersRepository, required this.idVendedor})
+      : super(OrdersState()) {
     loadOrders();
   }
 
   Future<void> loadOrders() async {
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      isLastPage: false,
+    );
+    _currentPage = 1;
 
     try {
-      // Aquí llamarías a tu API a través del repositorio
-      // final orders = await repository.getOrdersByVendedor(idVendedor);
+      final results = await Future.wait([
+        ordersRepository.getOrdersByVendedor(idVendedor, page: 1),
+        ordersRepository.getOrderSummary(idVendedor),
+      ]);
 
-      // Simulación de carga exitosa
-      await Future.delayed(const Duration(seconds: 1));
+      final initialOrders = results[0] as List<Order>;
+      final summary = results[1] as OrderSummary;
+
       state = state.copyWith(
         isLoading: false,
-        orders: [],
-      ); // Aquí pasas los orders reales
+        orders: initialOrders,
+        summary: summary,
+        isLastPage: initialOrders.isEmpty,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'No se pudieron cargar los pedidos',
+        errorMessage: 'Error al cargar pedidos: $e',
       );
     }
   }
+
+  Future<void> loadNextPage() async {
+    const int pageSize = 10;
+
+    if (state.isLoading || _isLoadingNextPage || state.isLastPage) return;
+
+    _isLoadingNextPage = true;
+
+    try {
+      final nextPage = _currentPage + 1;
+
+      final newOrders = await ordersRepository.getOrdersByVendedor(
+        idVendedor,
+        page: nextPage,
+      );
+
+      if (newOrders.isEmpty) {
+        state = state.copyWith(isLastPage: true);
+        _isLoadingNextPage = false;
+        return;
+      }
+
+      // CORRECCIÓN PRINCIPAL: Validación de duplicados
+      // Si el primer elemento nuevo ya existe en la lista actual,
+      // asumimos que el Mock Server reinició la lista o falló la paginación.
+      final bool isDuplicate = state.orders.any(
+        (existingOrder) => existingOrder.id == newOrders.first.id
+      );
+
+      if (isDuplicate) {
+        state = state.copyWith(isLastPage: true);
+        _isLoadingNextPage = false;
+        return;
+      }
+
+      _currentPage = nextPage;
+
+      state = state.copyWith(
+        orders: [...state.orders, ...newOrders],
+        isLastPage: newOrders.length < pageSize,
+      );
+    } catch (e) {
+      print('Error cargando página $_currentPage: $e');
+    } finally {
+      _isLoadingNextPage = false;
+    }
+  }
 }
+
+// --- PROVIDER ---
+final ordersProvider = StateNotifierProvider<OrdersNotifier, OrdersState>((ref) {
+  final authState = ref.watch(authProvider);
+  final user = authState.user;
+
+  final accessToken = user?.token ?? '';
+  final idVendedor = user?.idVendedor ?? 0;
+
+  final ordersRepository = OrderRepositoryImpl(
+    OrderDatasourceImpl(accessToken: accessToken),
+  );
+
+  return OrdersNotifier(
+    ordersRepository: ordersRepository,
+    idVendedor: idVendedor,
+  );
+});

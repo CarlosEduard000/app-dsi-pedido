@@ -123,7 +123,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                   label: 'Modificar cliente',
                   onTap: () {
                     // ref.read(selectedItemProvider.notifier).state = null
-                    context.go('/article_setup');
+                    context.go('/client_selection_screen');
                     // Lógica adicional aquí
                   },
                 ),

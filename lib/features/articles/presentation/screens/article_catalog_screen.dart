@@ -173,7 +173,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
                 borderRadius: BorderRadius.circular(8),
                 child: IconButton(
                   icon: Icon(Icons.tune, color: colors.primary),
-                  onPressed: () => context.go('/article_setup'),
+                  onPressed: () => context.go('/client_selection_screen'),
                 ),
               ),
             ],

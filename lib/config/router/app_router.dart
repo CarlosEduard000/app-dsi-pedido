@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/clients/clients.dart';
 import 'app_router_notifier.dart';
 import '../../features/auth/auth.dart';
 import '../../features/articles/articles.dart';
@@ -28,9 +29,9 @@ final appRouterStateProvider = Provider<GoRouter>((ref) {
 
       // --- Pantalla de Configuración inicial (Vendedor/Cliente) ---
       GoRoute(
-        path: '/article_setup',
-        name: ArticleSetupScreen.name, // "article_setup_screen"
-        builder: (context, state) => const ArticleSetupScreen(),
+        path: '/client_selection_screen',
+        name: ClientSelectionScreen.name, // "article_setup_screen"
+        builder: (context, state) => const ClientSelectionScreen(),
       ),
 
       // --- Pantalla del Catálogo de Productos ---
@@ -75,7 +76,7 @@ final appRouterStateProvider = Provider<GoRouter>((ref) {
       if (authStatus == AuthStatus.authenticated) {
         // Si está en el login o en la raíz, mandarlo a la primera pantalla útil
         if (isGoingTo == '/welcome' || isGoingTo == '/login') {
-          return '/article_setup';
+          return '/client_selection_screen';
         }
       }
 

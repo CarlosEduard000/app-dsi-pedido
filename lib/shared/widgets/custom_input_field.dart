@@ -12,9 +12,10 @@ class CustomInputField extends StatefulWidget {
   final bool showPasswordVisibleButton;
   final bool showClearButton;
   final TextEditingController? controller;
+  final FocusNode? focusNode; // <--- NUEVO PARAMETRO
   final Function(String)? onChanged;
   final VoidCallback? onFocus;
-  final String? errorMessage; // <--- Nuevo campo agregado
+  final String? errorMessage;
 
   const CustomInputField({
     super.key,
@@ -27,9 +28,10 @@ class CustomInputField extends StatefulWidget {
     this.showPasswordVisibleButton = false,
     this.showClearButton = false,
     this.controller,
+    this.focusNode, // <--- Recibir en constructor
     this.onChanged,
     this.onFocus,
-    this.errorMessage, // <--- Recibir en el constructor
+    this.errorMessage,
   });
 
   @override
@@ -37,14 +39,16 @@ class CustomInputField extends StatefulWidget {
 }
 
 class _CustomInputFieldState extends State<CustomInputField> {
-  late FocusNode _focusNode;
+  late FocusNode _focusNode; // Nodo interno o externo
   bool _isFocused = false;
   late bool _obscureText;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
+    // LOGICA CAMBIADA: Usamos el que nos pasan o creamos uno nuevo
+    _focusNode = widget.focusNode ?? FocusNode();
+    
     _focusNode.addListener(_onFocusChange);
     _obscureText = widget.isPassword;
 
@@ -52,6 +56,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
   }
 
   void _onFocusChange() {
+    if (!mounted) return;
+
     setState(() {
       _isFocused = _focusNode.hasFocus;
     });
@@ -68,7 +74,13 @@ class _CustomInputFieldState extends State<CustomInputField> {
   void dispose() {
     _focusNode.removeListener(_onFocusChange);
     widget.controller?.removeListener(_onTextChanged);
-    _focusNode.dispose();
+    
+    // IMPORTANTE: Solo hacemos dispose si NOSOTROS lo creamos. 
+    // Si vino de afuera (Autocomplete), ellos se encargan de cerrarlo.
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    
     super.dispose();
   }
 
@@ -76,11 +88,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Detectar si hay error para cambiar colores
     final hasError = widget.errorMessage != null;
-
-    // Color del borde
     final borderColor = hasError 
         ? Colors.red.shade400 
         : (_isFocused ? colors.primary : colors.outline.withValues(alpha: 0.2));
@@ -100,12 +108,12 @@ class _CustomInputFieldState extends State<CustomInputField> {
             borderRadius: BorderRadius.circular(widget.isSearchStyle ? 10 : 8),
             border: Border.all(
               color: borderColor,
-              width: _isFocused || hasError ? 1.5 : 1, // Borde más grueso si hay error
+              width: _isFocused || hasError ? 1.5 : 1,
             ),
           ),
           child: TextField(
             controller: widget.controller,
-            focusNode: _focusNode,
+            focusNode: _focusNode, // Usamos el nodo correcto
             obscureText: _obscureText,
             onChanged: widget.onChanged,
             style: GoogleFonts.roboto(color: colors.onSurface, fontSize: 15),
@@ -130,13 +138,12 @@ class _CustomInputFieldState extends State<CustomInputField> {
               prefixIcon: Icon(
                 widget.prefixIcon,
                 color: hasError
-                    ? Colors.red.shade400 // Icono rojo si hay error
+                    ? Colors.red.shade400
                     : (_isFocused
                         ? colors.primary
                         : colors.onSurfaceVariant.withValues(alpha: 0.4)),
                 size: 20,
               ),
-              // --- CONTENEDOR DE BOTONES DERECHOS ---
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -182,8 +189,6 @@ class _CustomInputFieldState extends State<CustomInputField> {
             ),
           ),
         ),
-        
-        // --- MOSTRAR MENSAJE DE ERROR ---
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(left: 10, top: 5),
