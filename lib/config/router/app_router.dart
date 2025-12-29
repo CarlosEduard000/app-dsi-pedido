@@ -6,7 +6,7 @@ import '../../features/articles/articles.dart';
 import '../../features/orders/orders.dart';
 
 final appRouterStateProvider = Provider<GoRouter>((ref) {
-  final goRouterNotifier = ref.read(goRouterNotifierProvider);
+  final goRouterNotifier = ref.watch(goRouterNotifierProvider);
 
   return GoRouter(
     initialLocation: '/welcome',

@@ -3,25 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
 final goRouterNotifierProvider = Provider((ref) {
-  final authNotifier = ref.read(authProvider.notifier);
-  return GoRouterNotifier(authNotifier);
+  final notifier = GoRouterNotifier();
+  
+  // Escuchamos los cambios de estado del authProvider
+  ref.listen(authProvider, (previous, next) {
+    notifier.authStatus = next.authStatus;
+  });
+
+  return notifier;
 });
 
 class GoRouterNotifier extends ChangeNotifier {
-  final AuthNotifier _authNotifier;
   AuthStatus _authStatus = AuthStatus.checking;
-
-  GoRouterNotifier(this._authNotifier) {
-    // Escucha cambios en el estado de autenticación
-    _authNotifier.addListener((state) {
-      authStatus = state.authStatus;
-    });
-  }
 
   AuthStatus get authStatus => _authStatus;
 
   set authStatus(AuthStatus value) {
+    if (_authStatus == value) return; // Evita notificaciones innecesarias
     _authStatus = value;
-    notifyListeners(); // Esto dispara la redirección en el router
+    notifyListeners(); // Esto es lo que activa el 'redirect' en app_router.dart
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../providers/auth_provider.dart';
+import '../presentation.dart';
 import '../../../../shared/shared.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -13,7 +13,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  // Controladores para capturar la información
+  // Mantenemos los controladores SOLO para inicializar el texto visualmente
+  // cuando cargamos las credenciales guardadas.
   final rucController = TextEditingController();
   final userController = TextEditingController();
   final passwordController = TextEditingController();
@@ -21,28 +22,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Cargamos las credenciales guardadas apenas se inicializa la pantalla
     _loadLastCredentials();
   }
 
-  // Método para recuperar RUC e ID (MCARLOS) del almacenamiento persistente
   void _loadLastCredentials() async {
-    final credentials = await ref
-        .read(authProvider.notifier)
-        .getLastCredentials();
+    final credentials = await ref.read(authProvider.notifier).getLastCredentials();
 
+    // 1. Cargar RUC
     if (credentials['ruc'] != null) {
-      rucController.text = credentials['ruc']!;
+      final ruc = credentials['ruc']!;
+      rucController.text = ruc; // Actualiza la vista (Controller)
+      // Actualiza el estado lógico (Riverpod + Formz)
+      ref.read(loginFormProvider.notifier).onRucChange(ruc);
     }
 
-    // CORRECCIÓN: Usamos la llave 'id' para que coincida con lo que
-    // envía el AuthNotifier (que ahora guarda user.id)
+    // 2. Cargar ID (Usuario)
     if (credentials['id'] != null) {
-      userController.text = credentials['id']!;
+      final id = credentials['id']!;
+      userController.text = id; // Actualiza la vista
+      ref.read(loginFormProvider.notifier).onIdChange(id); // Actualiza lógica
     }
-
-    // Si los datos se cargaron, refrescamos la UI para que se vean los textos
-    if (mounted) setState(() {});
+    
+    // No hace falta setState aquí porque el provider se encargará de reconstruir si es necesario
   }
 
   @override
@@ -53,28 +54,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
-    // Validar que los campos no estén vacíos antes de procesar
-    if (rucController.text.isEmpty ||
-        userController.text.isEmpty ||
-        passwordController.text.isEmpty) {
-      return;
-    }
-
-    final ruc = int.tryParse(rucController.text) ?? 0;
-
-    // Llamamos al método loginUser de tu authProvider
-    ref
-        .read(authProvider.notifier)
-        .loginUser(ruc, userController.text, passwordController.text);
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final colors = Theme.of(context).colorScheme;
 
-    // Escuchar el estado de autenticación
+    // Escuchamos el estado del formulario (validaciones, loading)
+    final loginForm = ref.watch(loginFormProvider);
+    
+    // Escuchamos el authProvider solo para errores de autenticación (backend)
     final authState = ref.watch(authProvider);
 
     return Scaffold(
@@ -146,28 +134,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                         const SizedBox(height: 20),
 
-                        // Campo RUC
+                        // --- Campo RUC ---
                         CustomInputField(
                           controller: rucController,
                           hintText: 'Empresa RUC',
                           prefixIcon: Icons.badge_outlined,
                           isNumber: true,
                           showClearButton: true,
+                          // Conectamos Riverpod
+                          onChanged: ref.read(loginFormProvider.notifier).onRucChange,
+                          // Mostramos error solo si el formulario ha sido enviado/tocado
+                          errorMessage: loginForm.isFormPosted 
+                              ? loginForm.ruc.errorMessage 
+                              : null,
                         ),
 
                         const SizedBox(height: 15),
 
-                        // Campo Usuario (ID: MCARLOS)
+                        // --- Campo Usuario (ID) ---
                         CustomInputField(
                           controller: userController,
                           hintText: 'Usuario',
                           prefixIcon: Icons.person_outline,
                           showClearButton: true,
+                          // Conectamos Riverpod
+                          onChanged: ref.read(loginFormProvider.notifier).onIdChange,
+                          errorMessage: loginForm.isFormPosted 
+                              ? loginForm.id.errorMessage 
+                              : null,
                         ),
 
                         const SizedBox(height: 15),
 
-                        // Campo Password
+                        // --- Campo Password ---
                         CustomInputField(
                           controller: passwordController,
                           hintText: 'Password',
@@ -176,9 +175,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           forceUpperCase: false,
                           showClearButton: true,
                           showPasswordVisibleButton: true,
+                          // Conectamos Riverpod
+                          onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
+                          errorMessage: loginForm.isFormPosted 
+                              ? loginForm.password.errorMessage 
+                              : null,
                         ),
 
-                        // Mensaje de error dinámico
+                        // Mensaje de error dinámico (Backend)
                         if (authState.errorMessage.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           Text(
@@ -197,10 +201,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed:
-                                (authState.authStatus == AuthStatus.checking)
+                            // Deshabilitamos si está posteando
+                            onPressed: loginForm.isPosting
                                 ? null
-                                : _onLogin,
+                                : () {
+                                    // Ocultar teclado
+                                    FocusScope.of(context).unfocus();
+                                    // Llamar al submit del provider
+                                    ref.read(loginFormProvider.notifier).onFormSubmit();
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colors.primary,
                               shape: RoundedRectangleBorder(
@@ -208,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               elevation: 0,
                             ),
-                            child: (authState.authStatus == AuthStatus.checking)
+                            child: loginForm.isPosting
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,

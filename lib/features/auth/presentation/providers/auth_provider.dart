@@ -25,7 +25,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> loginUser(int ruc, String id, String password) async {
-    state = state.copyWith(authStatus: AuthStatus.checking, errorMessage: '');
+    // state = state.copyWith(authStatus: AuthStatus.checking, errorMessage: '');
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
@@ -59,8 +59,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _setLoggedUser(User user) async {
     await keyValueStorageService.setKeyValue('token', user.token);
 
-    await keyValueStorageService.setKeyValue('last_ruc', user.ruc.toString());
-    await keyValueStorageService.setKeyValue('last_id', user.id);
+    // await keyValueStorageService.setKeyValue('last_ruc', user.ruc.toString());
+    // await keyValueStorageService.setKeyValue('last_id', user.id);
 
     state = state.copyWith(
       user: user,

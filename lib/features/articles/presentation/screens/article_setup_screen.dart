@@ -125,17 +125,17 @@ class ArticleSetupScreen extends ConsumerWidget {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: () => context.go('/productos'), 
+                onPressed: () => context.go('/article_catalog'), 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Text(
-                  'Continuar al catálogo',
+                  'CONTINUAR AL CATÁLOGO',
                   style: GoogleFonts.roboto(
                     color: Colors.white, 
-                    fontSize: 18, 
+                    fontSize: 16, 
                     fontWeight: FontWeight.bold
                   ),
                 ),
