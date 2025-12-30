@@ -5,9 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/shared.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../clients.dart';
+// Importamos el delegate y los providers necesarios
+import '../delegates/search_client_delegate.dart';
+// import '../providers/providers.dart';
 
 class ClientSelectionScreen extends StatelessWidget {
-  // Cambiado a StatelessWidget para estabilidad
   static const name = 'client_selection_screen';
 
   const ClientSelectionScreen({super.key});
@@ -54,8 +56,47 @@ class ClientSelectionScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 10),
 
-              // 1. Selector estable (No se reconstruye al cambiar el cliente)
-              const ClientAutocompleteSelector(),
+              // -------------------------------------------------------
+              // 1. INPUT QUE DISPARA EL SEARCH DELEGATE (Estilo Cinemapedia)
+              // -------------------------------------------------------
+              Consumer(
+                builder: (context, ref, child) {
+                  return GestureDetector(
+                    onTap: () {
+                      // Preparamos los datos para el delegate
+                      // final searchedClients = ref.read(searchedClientsProvider);
+                      // final searchQuery = ref.read(searchQueryProvider);
+
+                      // Lanzamos la búsqueda modal
+                      showSearch<Client?>(
+                        context: context,
+                        // query: searchQuery,
+                        delegate: SearchClientDelegate(
+                          initialClients: [], //searchedClients,
+                          searchClients: ref
+                              .read(searchedClientsProvider.notifier)
+                              .searchClientsByQuery,
+                        ),
+                      ).then((client) {
+                        // Al volver, si seleccionó un cliente, actualizamos el estado
+                        if (client != null) {
+                          ref.read(selectedClientProvider.notifier).state = client;
+                        }
+                      });
+                    },
+                    // Usamos AbsorbPointer para que el CustomInputField sea solo visual
+                    // y no intente abrir el teclado nativo aquí.
+                    child: AbsorbPointer(
+                      child: CustomInputField(
+                        hintText: 'Buscar cliente...',
+                        prefixIcon: Icons.person_search_outlined,
+                        isSearchStyle: true,
+                        // No pasamos controller ni focusNode porque es un "botón" visual
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               const SizedBox(height: 8),
 
@@ -116,8 +157,7 @@ class ClientSelectionScreen extends StatelessWidget {
                   if (client == null || client.shops.isEmpty)
                     return const SizedBox();
                   return _SubLabel(
-                    text: 'Tienda actual: ${client.shops.first}',
-                  );
+                      text: 'Tienda actual: ${client.shops.first}');
                 },
               ),
 
@@ -151,7 +191,8 @@ class ClientSelectionScreen extends StatelessWidget {
                   final client = ref.watch(selectedClientProvider);
                   if (client == null || client.warehouses.isEmpty)
                     return const SizedBox();
-                  return _SubLabel(text: 'Almacén: ${client.warehouses.first}');
+                  return _SubLabel(
+                      text: 'Almacén: ${client.warehouses.first}');
                 },
               ),
 
@@ -170,9 +211,8 @@ class ClientSelectionScreen extends StatelessWidget {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colors.primary,
-                        disabledBackgroundColor: colors.primary.withOpacity(
-                          0.3,
-                        ),
+                        disabledBackgroundColor:
+                            colors.primary.withOpacity(0.3),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

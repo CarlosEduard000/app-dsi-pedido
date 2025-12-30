@@ -51,6 +51,7 @@ class ClientDatasourceImpl extends ClientDatasource {
   @override
   Future<List<Client>> searchClients(String query, {int limit = 10}) async {
     try {
+      print('BUSCANDO EN API: $query');
       final response = await dio.get(
         '/clients/search',
         queryParameters: {
