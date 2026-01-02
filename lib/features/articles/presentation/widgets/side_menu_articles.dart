@@ -1,4 +1,5 @@
 import 'package:app_dsi_pedido/features/articles/articles.dart';
+import 'package:app_dsi_pedido/features/orders/presentation/providers/order_draft_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,16 +14,16 @@ class SideMenuArticles extends ConsumerStatefulWidget {
 }
 
 class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
-  // 1. Controlador para manejar el texto de la cantidad
   late TextEditingController _quantityController;
 
   @override
   void initState() {
     super.initState();
-    // Inicializamos el controlador con la cantidad actual del provider
-    final initialQuantity = ref.read(selectedItemProvider)?.quantity ?? 0;
+    final article = ref.read(selectedItemProvider);
+    final draftItem = ref.read(orderDraftProvider).items[article?.id];
+
     _quantityController = TextEditingController(
-      text: initialQuantity.toString(),
+      text: (draftItem?.quantity ?? article?.quantity ?? 0).toString(),
     );
   }
 
@@ -32,16 +33,15 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
     super.dispose();
   }
 
-  // 2. Lógica para guardar el cambio en el provider global
   void _saveAndClose(Article article) {
     final int newQuantity = int.tryParse(_quantityController.text) ?? 0;
 
-    // Actualizamos el estado usando copyWith
+    ref.read(orderDraftProvider.notifier).addOrUpdateItem(article, newQuantity);
+
     ref
         .read(selectedItemProvider.notifier)
         .update((state) => state?.copyWith(quantity: newQuantity));
 
-    // Cerramos el teclado y el menú lateral
     FocusScope.of(context).unfocus();
     widget.scaffoldKey.currentState?.closeEndDrawer();
   }
@@ -93,7 +93,7 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            article.price.toString(),
+                            "${article.currency == 'USD' ? '\$' : 'S/'} ${article.price.toStringAsFixed(2)}",
                             style: TextStyle(
                               color: colors.primary,
                               fontWeight: FontWeight.bold,
@@ -119,13 +119,11 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
                         ],
                       ),
                     ),
-                    // 3. Reemplazamos _QuantityDisplay por _QuantityInput
                     QuantityInput(
                       controller: _quantityController,
                       colors: colors,
                       isDark: isDark,
                       onChanged: (value) {
-                        // Forzamos reconstrucción para actualizar el total en el footer
                         setState(() {});
                       },
                     ),
@@ -155,7 +153,6 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
             article: article,
             colors: colors,
             isDark: isDark,
-            // 4. Usamos la cantidad escrita en tiempo real para el total
             currentQuantity: int.tryParse(_quantityController.text) ?? 0,
             onConfirm: () => _saveAndClose(article),
           ),

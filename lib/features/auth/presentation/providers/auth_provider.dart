@@ -64,6 +64,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = state.copyWith(
       user: user,
+      token: user.token,
       authStatus: AuthStatus.authenticated,
       errorMessage: '',
     );
@@ -75,6 +76,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       authStatus: AuthStatus.notAuthenticated,
       user: null,
+      token: null,
       errorMessage: errorMessage,
     );
   }
@@ -85,21 +87,25 @@ enum AuthStatus { checking, authenticated, notAuthenticated }
 class AuthState {
   final AuthStatus authStatus;
   final User? user;
+  final String? token;
   final String errorMessage;
 
   AuthState({
     this.authStatus = AuthStatus.checking,
     this.user,
+    this.token,
     this.errorMessage = '',
   });
 
   AuthState copyWith({
     AuthStatus? authStatus,
     User? user,
+    String? token,
     String? errorMessage,
   }) => AuthState(
     authStatus: authStatus ?? this.authStatus,
     user: user ?? this.user,
+    token: token ?? this.token,
     errorMessage: errorMessage ?? this.errorMessage,
   );
 }

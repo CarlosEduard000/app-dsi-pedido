@@ -9,21 +9,52 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
   final String accessToken;
 
   ArticlesDatasourceImpl({required this.accessToken})
-    : dio = Dio(
-        BaseOptions(
-          baseUrl: Environment.apiUrl,
-          headers: {'Authorization': 'Bearer $accessToken'},
-        ),
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: Environment.apiUrl,
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+        );
+
+  @override
+  Future<List<Article>> getArticles({int limit = 10, int offset = 0, String query = ''}) async {
+    try {
+      // 1. Creamos el mapa de parámetros base
+      final Map<String, dynamic> queryParameters = {
+        'limit': limit,
+        'offset': offset,
+      };
+
+      // 2. SOLO agregamos 'q' si tiene texto. Si está vacío, NO se envía.
+      if (query.isNotEmpty) {
+        queryParameters['q'] = query;
+      }
+
+      final response = await dio.get(
+        '/articles',
+        queryParameters: queryParameters, 
       );
+
+      final List<Article> articles = [];
+      for (final item in response.data) {
+        articles.add(ArticleMapper.jsonToEntity(item));
+      }
+
+      return articles;
+    } catch (e) {
+      print('Error en getArticles: $e'); // Print para debug
+      throw Exception();
+    }
+  }
 
   @override
   Future<Article> getArticleById(String id) async {
     try {
-      final response = await dio.get('path');
+      final response = await dio.get('/articles/$id');
       final article = ArticleMapper.jsonToEntity(response.data);
       return article;
     } on DioException catch (e) {
-      if (e.response!.statusCode == 404) throw ArticleNotFound();
+      if (e.response?.statusCode == 404) throw ArticleNotFound();
       throw Exception();
     } catch (e) {
       throw Exception();
@@ -32,25 +63,21 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
 
   @override
   Future<List<Article>> searchArticleByTerm(String term) async {
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // Aquí también aplicamos la misma lógica por seguridad
+      final Map<String, dynamic> params = {};
+      if (term.isNotEmpty) params['q'] = term;
 
-    return [
-      Article(
-        id: '1',
-        name: 'Alternador 12V Bosch',
-        price: 450.00,
-        code: 'ALT-001',
-        stock: 10,
-        isGift: false,
-      ),
-      Article(
-        id: '2',
-        name: 'Bateria ETNA 13',
-        price: 320.00,
-        code: 'BAT-002',
-        stock: 5,
-        isGift: false,
-      ),
-    ];
+      final response = await dio.get('/articles', queryParameters: params);
+
+      final List<Article> articles = [];
+      for (final item in response.data) {
+        articles.add(ArticleMapper.jsonToEntity(item));
+      }
+
+      return articles;
+    } catch (e) {
+      throw Exception();
+    }
   }
 }

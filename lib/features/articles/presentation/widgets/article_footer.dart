@@ -19,7 +19,6 @@ class ArticleFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cálculo reactivo del total basado en lo que el usuario escribe
     final double totalPrice = article.price * currentQuantity;
     final String symbol = (article.currency == 'USD') ? '\$' : 'S/.';
 
@@ -29,14 +28,13 @@ class ArticleFooter extends StatelessWidget {
         color: colors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
         ],
       ),
       child: SafeArea(
-        // Asegura que el botón no se pegue al borde inferior en iOS/Android
         top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -76,10 +74,12 @@ class ArticleFooter extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: onConfirm,
+                onPressed: currentQuantity > 0 ? onConfirm : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: colors.onSurface.withOpacity(0.12),
+                  disabledForegroundColor: colors.onSurface.withOpacity(0.38),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
