@@ -3,11 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/shared.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/auth.dart';
 import '../../clients.dart';
-// Importamos el delegate y los providers necesarios
-import '../delegates/search_client_delegate.dart';
-// import '../providers/providers.dart';
 
 class ClientSelectionScreen extends StatelessWidget {
   static const name = 'client_selection_screen';
@@ -56,51 +53,63 @@ class ClientSelectionScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 10),
 
-              // -------------------------------------------------------
-              // 1. INPUT QUE DISPARA EL SEARCH DELEGATE (Estilo Cinemapedia)
-              // -------------------------------------------------------
               Consumer(
                 builder: (context, ref, child) {
-                  return GestureDetector(
-                    onTap: () {
-                      // Preparamos los datos para el delegate
-                      // final searchedClients = ref.read(searchedClientsProvider);
-                      // final searchQuery = ref.read(searchQueryProvider);
+                  return SelectableInputField(
+                    hintText: 'Buscar cliente...',
+                    icon: Icons.person_search_outlined,
+                    onPressed: () async {
+                      FocusScope.of(context).unfocus();
+                      await Future.delayed(const Duration(milliseconds: 100));
+                      if (!context.mounted) return;
 
-                      // Lanzamos la búsqueda modal
-                      showSearch<Client?>(
+                      final client = await showSearch<Client?>(
                         context: context,
-                        // query: searchQuery,
-                        delegate: SearchClientDelegate(
-                          initialClients: [], //searchedClients,
-                          searchClients: ref
+                        delegate: GlobalSearchDelegate<Client>(
+                          searchLabel: 'Buscar cliente...',
+                          initialData: [],
+                          searchFunction: ref
                               .read(searchedClientsProvider.notifier)
                               .searchClientsByQuery,
+                          resultBuilder: (context, client, close) {
+                            return ListTile(
+                              title: Text(
+                                client.name,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: Text(
+                                client.documentNumber,
+                                style: GoogleFonts.roboto(fontSize: 12),
+                              ),
+                              leading: Icon(
+                                Icons.person_outline,
+                                color: colors.primary,
+                              ),
+                              onTap: () => close(client),
+                            );
+                          },
                         ),
-                      ).then((client) {
-                        // Al volver, si seleccionó un cliente, actualizamos el estado
-                        if (client != null) {
-                          ref.read(selectedClientProvider.notifier).state = client;
-                        }
-                      });
+                      );
+
+                      if (!context.mounted) return;
+                      FocusScope.of(context).unfocus();
+
+                      if (client != null) {
+                        ref.read(selectedClientProvider.notifier).state =
+                            client;
+                        ref.read(selectedPaymentMethodProvider.notifier).state =
+                            null;
+                      }
                     },
-                    // Usamos AbsorbPointer para que el CustomInputField sea solo visual
-                    // y no intente abrir el teclado nativo aquí.
-                    child: AbsorbPointer(
-                      child: CustomInputField(
-                        hintText: 'Buscar cliente...',
-                        prefixIcon: Icons.person_search_outlined,
-                        isSearchStyle: true,
-                        // No pasamos controller ni focusNode porque es un "botón" visual
-                      ),
-                    ),
                   );
                 },
               ),
 
               const SizedBox(height: 8),
 
-              // Nombre del usuario logueado
               Consumer(
                 builder: (context, ref, child) {
                   final user = ref.watch(authProvider).user;
@@ -117,7 +126,6 @@ class ClientSelectionScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // 2. Sección de detalles reactiva
               Consumer(
                 builder: (context, ref, child) {
                   final selectedClient = ref.watch(selectedClientProvider);
@@ -145,60 +153,122 @@ class ClientSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 3. Inputs de configuración con labels reactivos
-              CustomInputField(
-                hintText: 'Seleccionar Tienda',
-                prefixIcon: Icons.store_outlined,
-                isSearchStyle: true,
-              ),
               Consumer(
                 builder: (context, ref, child) {
                   final client = ref.watch(selectedClientProvider);
-                  if (client == null || client.shops.isEmpty)
-                    return const SizedBox();
-                  return _SubLabel(
-                      text: 'Tienda actual: ${client.shops.first}');
-                },
-              ),
+                  final subLabel = (client != null && client.shops.isNotEmpty)
+                      ? 'Tienda actual: ${client.shops.first}'
+                      : null;
 
-              const SizedBox(height: 20),
-
-              CustomInputField(
-                hintText: 'Seleccionar forma de cobro',
-                prefixIcon: Icons.payments_outlined,
-                isSearchStyle: true,
-              ),
-              Consumer(
-                builder: (context, ref, child) {
-                  final client = ref.watch(selectedClientProvider);
-                  if (client == null || client.paymentMethods.isEmpty)
-                    return const SizedBox();
-                  return _SubLabel(
-                    text: 'Cobro sugerido: ${client.paymentMethods.first}',
+                  return SelectableInputField(
+                    hintText: 'Seleccionar Tienda',
+                    icon: Icons.store_outlined,
+                    bottomLabel: subLabel,
+                    onPressed: () {},
                   );
                 },
               ),
 
               const SizedBox(height: 20),
 
-              CustomInputField(
-                hintText: 'Seleccionar Almacen',
-                prefixIcon: Icons.warehouse_outlined,
-                isSearchStyle: true,
-              ),
               Consumer(
                 builder: (context, ref, child) {
                   final client = ref.watch(selectedClientProvider);
-                  if (client == null || client.warehouses.isEmpty)
-                    return const SizedBox();
-                  return _SubLabel(
-                      text: 'Almacén: ${client.warehouses.first}');
+                  final selectedPayment = ref.watch(
+                    selectedPaymentMethodProvider,
+                  );
+                  final subLabel =
+                      (client != null && client.paymentMethods.isNotEmpty)
+                      ? 'Cobro sugerido: ${client.paymentMethods.first}'
+                      : null;
+
+                  return SelectableInputField(
+                    value: selectedPayment,
+                    hintText: 'Seleccionar forma de cobro',
+                    icon: Icons.payments_outlined,
+                    bottomLabel: subLabel,
+                    onPressed: () async {
+                      if (client == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Primero busque y seleccione un cliente',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (client.paymentMethods.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Este cliente no tiene formas de pago asignadas',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      FocusScope.of(context).unfocus();
+                      await Future.delayed(const Duration(milliseconds: 100));
+                      if (!context.mounted) return;
+
+                      final payment = await showSearch<String?>(
+                        context: context,
+                        delegate: GlobalSearchDelegate<String>(
+                          searchLabel: 'Forma de cobro',
+                          initialData: client.paymentMethods,
+                          searchFunction: (query) =>
+                              searchLocalList(query, client.paymentMethods),
+                          resultBuilder: (context, item, close) {
+                            return ListTile(
+                              title: Text(item),
+                              leading: Icon(
+                                Icons.payment,
+                                color: colors.onSurfaceVariant.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              onTap: () => close(item),
+                            );
+                          },
+                        ),
+                      );
+
+                      if (!context.mounted) return;
+                      FocusScope.of(context).unfocus();
+
+                      if (payment != null) {
+                        ref.read(selectedPaymentMethodProvider.notifier).state =
+                            payment;
+                      }
+                    },
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              Consumer(
+                builder: (context, ref, child) {
+                  final client = ref.watch(selectedClientProvider);
+                  final subLabel =
+                      (client != null && client.warehouses.isNotEmpty)
+                      ? 'Almacén: ${client.warehouses.first}'
+                      : null;
+
+                  return SelectableInputField(
+                    hintText: 'Seleccionar Almacen',
+                    icon: Icons.warehouse_outlined,
+                    bottomLabel: subLabel,
+                    onPressed: () {},
+                  );
                 },
               ),
 
               const SizedBox(height: 45),
 
-              // 4. Botón de continuación reactivo
               Consumer(
                 builder: (context, ref, child) {
                   final isSelected = ref.watch(selectedClientProvider) != null;
@@ -211,8 +281,9 @@ class ClientSelectionScreen extends StatelessWidget {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colors.primary,
-                        disabledBackgroundColor:
-                            colors.primary.withOpacity(0.3),
+                        disabledBackgroundColor: colors.primary.withOpacity(
+                          0.3,
+                        ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -239,22 +310,10 @@ class ClientSelectionScreen extends StatelessWidget {
   }
 }
 
-class _SubLabel extends StatelessWidget {
-  final String text;
-  const _SubLabel({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, left: 4),
-      child: Text(
-        text,
-        style: GoogleFonts.roboto(
-          color: Colors.grey.shade500,
-          fontSize: 12,
-          fontStyle: FontStyle.italic,
-        ),
-      ),
-    );
-  }
+Future<List<String>> searchLocalList(String query, List<String> list) async {
+  await Future.delayed(const Duration(milliseconds: 100));
+  if (query.isEmpty) return list;
+  return list
+      .where((element) => element.toLowerCase().contains(query.toLowerCase()))
+      .toList();
 }
