@@ -3,11 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../articles.dart';
 
 class BuildArticleGrid extends StatelessWidget {
-  final List<Article> articles; // Cambiado a List<Article>
+  final List<Article> articles;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final FocusNode searchFocusNode;
   final Function(Article) onArticleSeleccionado;
-  final ScrollController scrollController; // Nuevo: Para el Infinite Scroll
+  final ScrollController scrollController;
 
   const BuildArticleGrid({
     super.key,
@@ -15,7 +15,7 @@ class BuildArticleGrid extends StatelessWidget {
     required this.scaffoldKey,
     required this.searchFocusNode,
     required this.onArticleSeleccionado,
-    required this.scrollController, // Requerido
+    required this.scrollController,
   });
 
   @override
@@ -23,15 +23,14 @@ class BuildArticleGrid extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return GridView.builder(
-      controller: scrollController, // Vinculamos el controlador
+      controller: scrollController,
       padding: const EdgeInsets.all(16),
-      physics:
-          const AlwaysScrollableScrollPhysics(), // Importante para detectar scroll
+      physics: const AlwaysScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 15,
         mainAxisSpacing: 15,
-        mainAxisExtent: 260, // Ajustado ligeramente para que quepa todo
+        mainAxisExtent: 260,
       ),
       itemCount: articles.length,
       itemBuilder: (context, index) {
@@ -47,7 +46,7 @@ class BuildArticleGrid extends StatelessWidget {
 }
 
 class _ArticleCard extends StatelessWidget {
-  final Article article; // Cambiado a clase Article
+  final Article article;
   final ColorScheme colors;
   final VoidCallback onTap;
 
@@ -68,7 +67,7 @@ class _ArticleCard extends StatelessWidget {
           border: Border.all(color: colors.outline.withOpacity(0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: colors.onSurface.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -123,13 +122,14 @@ class _ArticleCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    article.name, // Usamos .name de la entidad
+                    article.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.roboto(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       height: 1.2,
+                      color: colors.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -150,8 +150,11 @@ class _ArticleCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: (article.stock > 0 ? Colors.green : Colors.red)
-                              .withOpacity(0.1),
+                          color:
+                              (article.stock > 0
+                                      ? colors.tertiary
+                                      : colors.error)
+                                  .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -159,8 +162,8 @@ class _ArticleCard extends StatelessWidget {
                           style: GoogleFonts.roboto(
                             fontSize: 10,
                             color: article.stock > 0
-                                ? Colors.green
-                                : Colors.red,
+                                ? colors.tertiary
+                                : colors.error,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

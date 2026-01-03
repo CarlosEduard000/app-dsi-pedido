@@ -5,8 +5,13 @@ class CheckAuthStatusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+    final colors = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: colors.surface,
+      body: Center(
+        child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary),
+      ),
     );
   }
 }

@@ -5,13 +5,9 @@ class OrdersTableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Extraemos el tema para mantener la coherencia visual
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      // Usamos los mismos márgenes horizontales que los items de la lista (10)
-      // más el padding interno que tiene el contenedor (12)
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
       child: Row(
         children: [
@@ -22,7 +18,7 @@ class OrdersTableHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isDark ? colors.onSurfaceVariant : colors.secondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),
@@ -33,7 +29,7 @@ class OrdersTableHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isDark ? colors.onSurfaceVariant : colors.secondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),
@@ -44,7 +40,7 @@ class OrdersTableHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isDark ? colors.onSurfaceVariant : colors.secondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),
@@ -56,7 +52,7 @@ class OrdersTableHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isDark ? colors.onSurfaceVariant : colors.secondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),

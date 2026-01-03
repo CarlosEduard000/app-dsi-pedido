@@ -18,29 +18,23 @@ class ListOrderScreen extends ConsumerStatefulWidget {
 
 class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  
-  // 1. Controlador para detectar el movimiento del Scroll
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    // 2. Agregamos el "oyente" al controlador
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    // 3. Limpiamos el controlador al salir
     _scrollController.dispose();
     super.dispose();
   }
 
-  // Lógica del Infinite Scroll
   void _onScroll() {
-    // Si la posición actual + 400 pixeles es mayor o igual al máximo posible...
-    if ((_scrollController.position.pixels + 400) >= _scrollController.position.maxScrollExtent) {
-      // Llamamos a la paginación
+    if ((_scrollController.position.pixels + 400) >=
+        _scrollController.position.maxScrollExtent) {
       ref.read(ordersProvider.notifier).loadNextPage();
     }
   }
@@ -51,7 +45,6 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Escuchamos el estado de los pedidos y el usuario
     final ordersState = ref.watch(ordersProvider);
     final user = ref.watch(authProvider).user;
 
@@ -64,15 +57,12 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
         backgroundColor: colors.secondary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: isDark ? Colors.black : Colors.white),
+          icon: Icon(Icons.menu, color: colors.onSecondary),
           onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.shopping_cart_outlined,
-              color: isDark ? Colors.black : Colors.white,
-            ),
+            icon: Icon(Icons.shopping_cart_outlined, color: colors.onSecondary),
             onPressed: () => context.go('/cart_screen'),
           ),
         ],
@@ -93,40 +83,34 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
             },
             onRefresh: () => ref.read(ordersProvider.notifier).loadOrders(),
             child: SingleChildScrollView(
-              // 4. Conectamos el controlador al ScrollView
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  
-                  // Pasamos el SUMMARY para los totales y la LISTA para el detalle
                   _buildProfileCard(
                     size,
                     colors,
                     isDark,
                     user,
                     ordersState.orders,
-                    ordersState.summary, // <--- CAMBIO: Pasamos el resumen
+                    ordersState.summary,
                   ),
                   const SizedBox(height: 20),
-
-                  // Manejo de estados de la API (Carga Inicial)
                   if (ordersState.isLoading && ordersState.orders.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(40),
                       child: CircularProgressIndicator(),
                     )
-                  else if (ordersState.errorMessage != null && ordersState.orders.isEmpty)
+                  else if (ordersState.errorMessage != null &&
+                      ordersState.orders.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Text(
                         ordersState.errorMessage!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: colors.error),
                       ),
                     ),
-                  
-                  // 5. Indicador de carga inferior (Paginación)
                   if (ordersState.isLoading && ordersState.orders.isNotEmpty)
                     const Padding(
                       padding: EdgeInsets.only(bottom: 30),
@@ -136,7 +120,6 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     ),
-
                   const SizedBox(height: 30),
                 ],
               ),
@@ -153,11 +136,8 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     bool isDark,
     dynamic user,
     List<Order> orders,
-    OrderSummary? summary, // <--- CAMBIO: Recibimos el resumen
+    OrderSummary? summary,
   ) {
-    
-    // <--- CAMBIO: Eliminamos el cálculo manual (orders.fold)
-    
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 60),
       child: Stack(
@@ -172,7 +152,7 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: colors.shadow.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -181,11 +161,8 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 60),
-                
-                // <--- CAMBIO: Usamos summary.totalAmount
                 Text(
-                  // Si summary es null (cargando), mostramos 0.00
-                  'S/. ${summary?.totalAmount.toStringAsFixed(2) ?? "0.00"}', 
+                  'S/. ${summary?.totalAmount.toStringAsFixed(2) ?? "0.00"}',
                   style: GoogleFonts.roboto(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -194,23 +171,25 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                 ),
                 Text(
                   'Monto Total Pedidos',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 15),
-                
                 Text(
                   user?.fullName ?? 'Usuario',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : colors.secondary,
+                    color: colors.onSurface,
                   ),
                 ),
                 Text(
                   'Vendedor ID: ${user?.idVendedor ?? 0}',
                   style: TextStyle(
-                    color: colors.secondary.withValues(alpha: 0.8),
+                    color: colors.secondary.withOpacity(0.8),
                     fontSize: 16,
                   ),
                 ),
@@ -218,23 +197,17 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   child: Divider(thickness: 0.5),
                 ),
-
-                // <--- CAMBIO: Pasamos el summary en vez de orders
                 _buildStatsRow(colors, summary),
-                
                 const SizedBox(height: 20),
-                const OrdersTableHeader(), 
+                const OrdersTableHeader(),
                 const SizedBox(height: 20),
-                
-                // Lista de pedidos (Esto se mantiene igual, usando la lista)
-                if (orders.isEmpty) // Quitamos la validación de isLoading aquí para que se vea la lista vacía si corresponde
-                   const Padding(
-                     padding: EdgeInsets.all(20.0),
-                     child: Text('No hay pedidos registrados'),
-                   )
+                if (orders.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text('No hay pedidos registrados'),
+                  )
                 else
-                   OrdersList(orders: orders.toList()),
-
+                  OrdersList(orders: orders.toList()),
                 const SizedBox(height: 20),
               ],
             ),
@@ -256,10 +229,7 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
     );
   }
 
-  // <--- CAMBIO: Recibe OrderSummary? en lugar de List<Order>
   Widget _buildStatsRow(ColorScheme colors, OrderSummary? summary) {
-    // Ya no calculamos nada aquí, solo pintamos los datos del API
-    
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [

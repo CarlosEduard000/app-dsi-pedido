@@ -5,9 +5,9 @@ class PromotionBanner extends StatelessWidget {
   final int quantity;
 
   const PromotionBanner({
-    super.key, 
-    required this.colors, 
-    required this.quantity
+    super.key,
+    required this.colors,
+    required this.quantity,
   });
 
   @override
@@ -15,9 +15,9 @@ class PromotionBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: colors.error.withOpacity(0.3)),
+        border: Border.all(color: colors.tertiary.withOpacity(0.3)),
         borderRadius: BorderRadius.circular(8),
-        color: colors.error.withOpacity(0.05),
+        color: colors.tertiary.withOpacity(0.05),
       ),
       child: Row(
         children: [
@@ -26,7 +26,7 @@ class PromotionBanner extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: colors.error,
+              color: colors.tertiary,
             ),
           ),
           const SizedBox(width: 12),
@@ -36,7 +36,7 @@ class PromotionBanner extends StatelessWidget {
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ),
-          Icon(Icons.stars, color: colors.error, size: 22),
+          Icon(Icons.stars, color: colors.tertiary, size: 22),
         ],
       ),
     );

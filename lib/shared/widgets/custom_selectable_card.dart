@@ -7,7 +7,7 @@ class CustomSelectableCard extends StatelessWidget {
   final String label;
   final String? imagePath;
   final bool isSelected;
-  final bool isAlertStyle; // Reemplaza la lógica de 'isGift'
+  final bool isAlertStyle;
   final VoidCallback onTap;
   final IconData? fallbackIcon;
 
@@ -27,9 +27,9 @@ class CustomSelectableCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // Color de acento basado en si es estilo alerta (gift) o normal
+
     final Color colorAccent = isAlertStyle ? colors.error : colors.primary;
+    final Color iconFallbackColor = colors.onSurfaceVariant;
 
     return GestureDetector(
       onTap: onTap,
@@ -39,7 +39,7 @@ class CustomSelectableCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? colorAccent : Colors.transparent, 
+            color: isSelected ? colorAccent : Colors.transparent,
             width: 2,
           ),
         ),
@@ -47,14 +47,15 @@ class CustomSelectableCard extends StatelessWidget {
           elevation: isSelected ? 4 : 2,
           margin: EdgeInsets.zero,
           color: isSelected
-              ? (isDark ? colors.surface : Colors.white)
-              : (isDark ? colors.surfaceVariant.withOpacity(0.2) : colors.surface),
+              ? colors.surface
+              : (isDark
+                    ? colors.surfaceVariant.withOpacity(0.2)
+                    : colors.surface),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                // Sección de Imagen / Icono
                 SizedBox(
                   width: 70,
                   height: 70,
@@ -62,13 +63,15 @@ class CustomSelectableCard extends StatelessWidget {
                     child: AnimatedScale(
                       scale: isSelected ? 1.1 : 1.0,
                       duration: const Duration(milliseconds: 250),
-                      child: _buildLeadingWidget(colorAccent),
+                      child: _buildLeadingWidget(
+                        colorAccent,
+                        iconFallbackColor,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                
-                // Sección de Textos
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +82,9 @@ class CustomSelectableCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.roboto(
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: colors.onSurface,
                         ),
                       ),
@@ -95,15 +100,16 @@ class CustomSelectableCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                
-                // Sección de Label (Cantidad/Número)
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Text(
                     label,
                     style: GoogleFonts.roboto(
                       fontSize: 22,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: colors.onSurface,
                     ),
                   ),
@@ -116,19 +122,18 @@ class CustomSelectableCard extends StatelessWidget {
     );
   }
 
-  /// Método privado para decidir qué mostrar en el leading (Imagen o Icono)
-  Widget _buildLeadingWidget(Color colorAccent) {
+  Widget _buildLeadingWidget(Color colorAccent, Color fallbackColor) {
     if (isAlertStyle) {
       return Icon(Icons.card_giftcard, color: colorAccent, size: 35);
     }
-    
+
     if (imagePath != null && imagePath!.isNotEmpty) {
       return Image.asset(imagePath!, fit: BoxFit.contain);
     }
 
     return Icon(
-      fallbackIcon, 
-      color: isSelected ? colorAccent : Colors.grey, 
+      fallbackIcon,
+      color: isSelected ? colorAccent : fallbackColor,
       size: 40,
     );
   }

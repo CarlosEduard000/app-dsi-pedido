@@ -31,13 +31,12 @@ class OrderDraftNotifier extends StateNotifier<OrderDraftState> {
   OrderDraftNotifier() : super(OrderDraftState());
 
   void addOrUpdateItem(Article article, int quantity) {
-    if (quantity <= 0) {
-      removeItem(article.id);
-      return;
-    }
+    if (quantity < 0) return;
 
     final newItems = Map<String, OrderItem>.from(state.items);
+
     newItems[article.id] = OrderItem(article: article, quantity: quantity);
+
     state = state.copyWith(items: newItems);
   }
 

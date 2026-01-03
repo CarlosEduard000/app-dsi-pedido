@@ -20,6 +20,8 @@ class SelectableInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +41,7 @@ class SelectableInputField extends StatelessWidget {
             child: Text(
               bottomLabel!,
               style: GoogleFonts.roboto(
-                color: Colors.grey.shade500,
+                color: colors.onSurfaceVariant,
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
               ),

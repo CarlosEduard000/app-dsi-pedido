@@ -20,7 +20,6 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
 
     state = state.copyWith(isLoading: true);
 
-    // Guardamos el query actual para verificar integridad después
     final requestQuery = state.query;
 
     try {
@@ -30,8 +29,6 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
         query: state.query,
       );
 
-      // SEGURIDAD: Si el usuario cambió la búsqueda mientras esperábamos, 
-      // ignoramos estos resultados viejos.
       if (state.query != requestQuery) return;
 
       if (articles.isEmpty) {
@@ -39,13 +36,11 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
         return;
       }
 
-      // Filtro de duplicados
       final currentIds = state.articles.map((a) => a.id).toSet();
       final newArticles = articles
           .where((a) => !currentIds.contains(a.id))
           .toList();
 
-      // Si todos eran duplicados, asumimos que no hay más datos nuevos
       if (newArticles.isEmpty) {
         state = state.copyWith(isLoading: false, isLastPage: true);
         return;
@@ -58,7 +53,6 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
         offset: state.offset + articles.length,
       );
     } catch (e) {
-      // Si falla, solo quitamos el loading para permitir reintentar
       state = state.copyWith(isLoading: false);
     }
   }
@@ -71,7 +65,7 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
       offset: 0,
       articles: [],
       isLastPage: false,
-      isLoading: false, // Reseteamos loading por seguridad
+      isLoading: false,
     );
 
     loadNextPage();
@@ -102,13 +96,12 @@ class ArticlesState {
     int? limit,
     int? offset,
     String? query,
-  }) =>
-      ArticlesState(
-        articles: articles ?? this.articles,
-        isLoading: isLoading ?? this.isLoading,
-        isLastPage: isLastPage ?? this.isLastPage,
-        limit: limit ?? this.limit,
-        offset: offset ?? this.offset,
-        query: query ?? this.query,
-      );
+  }) => ArticlesState(
+    articles: articles ?? this.articles,
+    isLoading: isLoading ?? this.isLoading,
+    isLastPage: isLastPage ?? this.isLastPage,
+    limit: limit ?? this.limit,
+    offset: offset ?? this.offset,
+    query: query ?? this.query,
+  );
 }

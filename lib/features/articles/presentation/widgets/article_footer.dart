@@ -28,7 +28,7 @@ class ArticleFooter extends StatelessWidget {
         color: colors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: colors.onSurface.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -77,7 +77,7 @@ class ArticleFooter extends StatelessWidget {
                 onPressed: currentQuantity > 0 ? onConfirm : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: colors.onPrimary,
                   disabledBackgroundColor: colors.onSurface.withOpacity(0.12),
                   disabledForegroundColor: colors.onSurface.withOpacity(0.38),
                   elevation: 0,

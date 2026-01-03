@@ -10,27 +10,26 @@ class ClientDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildClientHeader(colors, isDark),
+        _buildClientHeader(colors),
         const Divider(height: 40, thickness: 1),
-        _buildCreditInfo(colors, isDark),
+        _buildCreditInfo(colors),
         const Divider(height: 40, thickness: 1),
       ],
     );
   }
 
-  Widget _buildClientHeader(ColorScheme colors, bool isDark) {
+  Widget _buildClientHeader(ColorScheme colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           client.name,
           style: GoogleFonts.roboto(
-            color: isDark ? Colors.white70 : const Color(0xFF455A64),
+            color: colors.onSurfaceVariant,
             fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
@@ -48,7 +47,7 @@ class ClientDetailsView extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
               client.addresses.first,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(fontSize: 12, color: colors.outline),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -57,7 +56,7 @@ class ClientDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildCreditInfo(ColorScheme colors, bool isDark) {
+  Widget _buildCreditInfo(ColorScheme colors) {
     final credit = client.creditLines.isNotEmpty
         ? client.creditLines.first
         : null;
@@ -75,7 +74,7 @@ class ClientDetailsView extends StatelessWidget {
               style: GoogleFonts.roboto(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: isDark ? Colors.white : Colors.black87,
+                color: colors.onSurface,
               ),
             ),
           ],
@@ -83,7 +82,7 @@ class ClientDetailsView extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Linea asignada: ${credit != null ? formatCurrency(credit.assigned) : "N/A"}',
-          style: GoogleFonts.roboto(color: Colors.grey, fontSize: 13),
+          style: GoogleFonts.roboto(color: colors.outline, fontSize: 13),
         ),
         const SizedBox(height: 4),
         Text(

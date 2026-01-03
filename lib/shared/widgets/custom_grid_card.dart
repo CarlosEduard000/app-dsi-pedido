@@ -3,12 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CustomGridCard extends StatelessWidget {
   final String title;
-  final String mainLabel;     // Antes: precio
-  final String? topStartText;  // Antes: código
-  final String? bottomEndText; // Antes: stock
+  final String mainLabel;
+  final String? topStartText;
+  final String? bottomEndText;
   final String? imagePath;
   final bool isSelected;
-  final bool hasBadge;         // Antes: isGift (estrella)
+  final bool hasBadge;
   final VoidCallback onTap;
 
   const CustomGridCard({
@@ -43,12 +43,13 @@ class CustomGridCard extends StatelessWidget {
           elevation: isSelected ? 4 : 2,
           margin: EdgeInsets.zero,
           color: isSelected
-              ? (isDark ? colors.surface : Colors.white)
-              : (isDark ? colors.surfaceVariant.withOpacity(0.2) : colors.surface),
+              ? colors.surface
+              : (isDark
+                    ? colors.surfaceVariant.withOpacity(0.2)
+                    : colors.surface),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: Column(
             children: [
-              // Área Visual Superior
               Expanded(
                 child: Stack(
                   children: [
@@ -57,8 +58,16 @@ class CustomGridCard extends StatelessWidget {
                         scale: isSelected ? 1.08 : 1.0,
                         duration: const Duration(milliseconds: 250),
                         child: imagePath != null && imagePath!.isNotEmpty
-                            ? Image.asset(imagePath!, width: 100, fit: BoxFit.contain)
-                            : const Icon(Icons.image, size: 50, color: Colors.grey),
+                            ? Image.asset(
+                                imagePath!,
+                                width: 100,
+                                fit: BoxFit.contain,
+                              )
+                            : Icon(
+                                Icons.image,
+                                size: 50,
+                                color: colors.onSurfaceVariant,
+                              ),
                       ),
                     ),
                     if (topStartText != null && topStartText!.isNotEmpty)
@@ -70,7 +79,9 @@ class CustomGridCard extends StatelessWidget {
                           style: GoogleFonts.roboto(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
-                            color: isSelected ? colors.primary : colors.onSurface,
+                            color: isSelected
+                                ? colors.primary
+                                : colors.onSurface,
                           ),
                         ),
                       ),
@@ -78,13 +89,15 @@ class CustomGridCard extends StatelessWidget {
                       Positioned(
                         top: 5,
                         right: 5,
-                        child: Icon(Icons.stars, color: colors.error, size: 18),
+                        child: Icon(
+                          Icons.stars,
+                          color: colors.tertiary,
+                          size: 18,
+                        ),
                       ),
                   ],
                 ),
               ),
-              
-              // Área de Información Inferior
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -96,7 +109,10 @@ class CustomGridCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.roboto(
                         fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: colors.onSurface,
                       ),
                     ),
                     const SizedBox(height: 5),
@@ -116,14 +132,14 @@ class CustomGridCard extends StatelessWidget {
                             bottomEndText!,
                             style: GoogleFonts.roboto(
                               fontSize: 10,
-                              color: Colors.grey,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
                       ],
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

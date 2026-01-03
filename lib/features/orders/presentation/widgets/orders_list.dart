@@ -9,12 +9,14 @@ class OrdersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (orders.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(20),
-        child: Text('No hay pedidos registrados'),
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(
+          'No hay pedidos registrados',
+          style: TextStyle(color: colors.onSurfaceVariant),
+        ),
       );
     }
 
@@ -31,16 +33,9 @@ class OrdersList extends StatelessWidget {
             color: colors.surface,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 4,
-              ),
+              BoxShadow(color: colors.shadow.withOpacity(0.05), blurRadius: 4),
             ],
-            border: Border.all(
-              color: isDark
-                  ? colors.outline.withValues(alpha: 0.2)
-                  : Colors.grey[100]!,
-            ),
+            border: Border.all(color: colors.outline.withOpacity(0.2)),
           ),
           child: Row(
             children: [
@@ -55,14 +50,18 @@ class OrdersList extends StatelessWidget {
                   children: [
                     Text(
                       pedido.id,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
+                        color: colors.onSurface,
                       ),
                     ),
                     Text(
                       pedido.shortClientName,
-                      style: const TextStyle(color: Colors.grey, fontSize: 10),
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 10,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -72,7 +71,10 @@ class OrdersList extends StatelessWidget {
                 flex: 1,
                 child: Text(
                   pedido.paymentType,
-                  style: const TextStyle(color: Colors.grey, fontSize: 10),
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 10,
+                  ),
                 ),
               ),
               Expanded(

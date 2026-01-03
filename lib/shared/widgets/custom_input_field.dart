@@ -12,7 +12,7 @@ class CustomInputField extends StatefulWidget {
   final bool showPasswordVisibleButton;
   final bool showClearButton;
   final TextEditingController? controller;
-  final FocusNode? focusNode; // <--- NUEVO PARAMETRO
+  final FocusNode? focusNode;
   final Function(String)? onChanged;
   final VoidCallback? onFocus;
   final String? errorMessage;
@@ -28,7 +28,7 @@ class CustomInputField extends StatefulWidget {
     this.showPasswordVisibleButton = false,
     this.showClearButton = false,
     this.controller,
-    this.focusNode, // <--- Recibir en constructor
+    this.focusNode,
     this.onChanged,
     this.onFocus,
     this.errorMessage,
@@ -39,25 +39,21 @@ class CustomInputField extends StatefulWidget {
 }
 
 class _CustomInputFieldState extends State<CustomInputField> {
-  late FocusNode _focusNode; // Nodo interno o externo
+  late FocusNode _focusNode;
   bool _isFocused = false;
   late bool _obscureText;
 
   @override
   void initState() {
     super.initState();
-    // LOGICA CAMBIADA: Usamos el que nos pasan o creamos uno nuevo
     _focusNode = widget.focusNode ?? FocusNode();
-    
     _focusNode.addListener(_onFocusChange);
     _obscureText = widget.isPassword;
-
     widget.controller?.addListener(_onTextChanged);
   }
 
   void _onFocusChange() {
     if (!mounted) return;
-
     setState(() {
       _isFocused = _focusNode.hasFocus;
     });
@@ -74,24 +70,21 @@ class _CustomInputFieldState extends State<CustomInputField> {
   void dispose() {
     _focusNode.removeListener(_onFocusChange);
     widget.controller?.removeListener(_onTextChanged);
-    
-    // IMPORTANTE: Solo hacemos dispose si NOSOTROS lo creamos. 
-    // Si vino de afuera (Autocomplete), ellos se encargan de cerrarlo.
     if (widget.focusNode == null) {
       _focusNode.dispose();
     }
-    
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final hasError = widget.errorMessage != null;
-    final borderColor = hasError 
-        ? Colors.red.shade400 
-        : (_isFocused ? colors.primary : colors.outline.withValues(alpha: 0.2));
+
+    final borderColor = hasError
+        ? colors.error
+        : (_isFocused ? colors.primary : colors.outline);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,11 +93,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: _isFocused
-                ? (isDark ? colors.surface : Colors.white)
-                : (isDark
-                    ? colors.surfaceVariant.withValues(alpha: 0.1)
-                    : const Color(0xFFF8F9FA)),
+            color: _isFocused ? colors.surface : scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(widget.isSearchStyle ? 10 : 8),
             border: Border.all(
               color: borderColor,
@@ -113,7 +102,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
           ),
           child: TextField(
             controller: widget.controller,
-            focusNode: _focusNode, // Usamos el nodo correcto
+            focusNode: _focusNode,
             obscureText: _obscureText,
             onChanged: widget.onChanged,
             style: GoogleFonts.roboto(color: colors.onSurface, fontSize: 15),
@@ -132,16 +121,14 @@ class _CustomInputFieldState extends State<CustomInputField> {
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: GoogleFonts.roboto(
-                color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+                color: colors.onSurfaceVariant,
                 fontSize: 15,
               ),
               prefixIcon: Icon(
                 widget.prefixIcon,
                 color: hasError
-                    ? Colors.red.shade400
-                    : (_isFocused
-                        ? colors.primary
-                        : colors.onSurfaceVariant.withValues(alpha: 0.4)),
+                    ? colors.error
+                    : (_isFocused ? colors.primary : colors.outline),
                 size: 20,
               ),
               suffixIcon: Row(
@@ -155,7 +142,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
                     IconButton(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.clear, size: 20),
+                      icon: Icon(Icons.clear, size: 20, color: colors.outline),
                       onPressed: () {
                         widget.controller?.clear();
                         if (widget.onChanged != null) widget.onChanged!('');
@@ -170,7 +157,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
                         size: 20,
-                        color: hasError ? Colors.red.shade400 : null,
+                        color: hasError ? colors.error : colors.outline,
                       ),
                       onPressed: () {
                         setState(() {
@@ -194,12 +181,9 @@ class _CustomInputFieldState extends State<CustomInputField> {
             padding: const EdgeInsets.only(left: 10, top: 5),
             child: Text(
               widget.errorMessage!,
-              style: TextStyle(
-                color: Colors.red.shade400,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: colors.error, fontSize: 12),
             ),
-          )
+          ),
       ],
     );
   }

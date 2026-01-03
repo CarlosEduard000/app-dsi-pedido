@@ -3,7 +3,6 @@ import '../../domain/domain.dart';
 import '../../infrastructure/infrastructure.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
-// --- STATE ---
 class OrdersState {
   final List<Order> orders;
   final OrderSummary? summary;
@@ -25,17 +24,15 @@ class OrdersState {
     bool? isLoading,
     bool? isLastPage,
     String? errorMessage,
-  }) =>
-      OrdersState(
-        orders: orders ?? this.orders,
-        summary: summary ?? this.summary,
-        isLoading: isLoading ?? this.isLoading,
-        isLastPage: isLastPage ?? this.isLastPage,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  }) => OrdersState(
+    orders: orders ?? this.orders,
+    summary: summary ?? this.summary,
+    isLoading: isLoading ?? this.isLoading,
+    isLastPage: isLastPage ?? this.isLastPage,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 }
 
-// --- NOTIFIER ---
 class OrdersNotifier extends StateNotifier<OrdersState> {
   final OrderRepository ordersRepository;
   final int idVendedor;
@@ -44,7 +41,7 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
   bool _isLoadingNextPage = false;
 
   OrdersNotifier({required this.ordersRepository, required this.idVendedor})
-      : super(OrdersState()) {
+    : super(OrdersState()) {
     loadOrders();
   }
 
@@ -102,11 +99,8 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
         return;
       }
 
-      // CORRECCIÓN PRINCIPAL: Validación de duplicados
-      // Si el primer elemento nuevo ya existe en la lista actual,
-      // asumimos que el Mock Server reinició la lista o falló la paginación.
       final bool isDuplicate = state.orders.any(
-        (existingOrder) => existingOrder.id == newOrders.first.id
+        (existingOrder) => existingOrder.id == newOrders.first.id,
       );
 
       if (isDuplicate) {
@@ -129,8 +123,9 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
   }
 }
 
-// --- PROVIDER ---
-final ordersProvider = StateNotifierProvider<OrdersNotifier, OrdersState>((ref) {
+final ordersProvider = StateNotifierProvider<OrdersNotifier, OrdersState>((
+  ref,
+) {
   final authState = ref.watch(authProvider);
   final user = authState.user;
 

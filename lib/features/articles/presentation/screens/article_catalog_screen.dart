@@ -65,10 +65,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: isDark ? Colors.white : const Color(0xFF333333),
-          ),
+          icon: Icon(Icons.menu, color: colors.onSurface),
           onPressed: () {
             _searchFocusNode.unfocus();
             scaffoldKey.currentState?.openDrawer();
@@ -77,7 +74,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
         title: Text(
           'Catálogo',
           style: GoogleFonts.roboto(
-            color: isDark ? Colors.white : const Color(0xFF333333),
+            color: colors.onSurface,
             fontWeight: FontWeight.w500,
             fontSize: 20,
           ),
@@ -105,9 +102,12 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
             ),
           ),
           if (articlesState.isLoading && articlesState.articles.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: CircularProgressIndicator(strokeWidth: 2),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+              ),
             ),
         ],
       ),
@@ -115,8 +115,12 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
     );
   }
 
-  Widget _buildHeaderInfo(ColorScheme colors, bool isDark, dynamic client,
-      ArticlesState articlesState) {
+  Widget _buildHeaderInfo(
+    ColorScheme colors,
+    bool isDark,
+    dynamic client,
+    ArticlesState articlesState,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
       child: Column(
@@ -124,21 +128,15 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
         children: [
           SelectableInputField(
             hintText: 'Buscar por nombre o código...',
-            // Mostramos el valor actual, o null si está vacío (para mostrar el hint)
             value: articlesState.query.isEmpty ? null : articlesState.query,
             icon: Icons.search,
             onPressed: () async {
-              // PASO 1: Limpiamos el filtro actual INMEDIATAMENTE al tocar.
-              // Esto hace que la pantalla de fondo vuelva a "Todos los artículos"
-              // y el campo se vea "en blanco" si el usuario cancela la búsqueda.
               ref.read(articlesProvider.notifier).onSearchQueryChanged('');
 
-              // PASO 2: Abrimos el buscador
               final Article? selectedArticle = await showSearch<Article?>(
                 context: context,
                 delegate: GlobalSearchDelegate<Article>(
-                  // Pasamos una lista vacía o la actual (que se está reseteando)
-                  initialData: [], 
+                  initialData: [],
                   searchLabel: 'Buscar artículos',
                   searchFunction: (query) {
                     return ref
@@ -148,24 +146,36 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
                   resultBuilder: (context, article, close) {
                     return ListTile(
                       leading: (article.image != null)
-                          ? Image.network(article.image!,
+                          ? Image.network(
+                              article.image!,
                               width: 40,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.inventory_2))
-                          : const Icon(Icons.inventory_2),
-                      title: Text(article.name),
-                      subtitle: Text("${article.code} - ${article.brand}"),
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.inventory_2,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            )
+                          : Icon(
+                              Icons.inventory_2,
+                              color: colors.onSurfaceVariant,
+                            ),
+                      title: Text(
+                        article.name,
+                        style: TextStyle(color: colors.onSurface),
+                      ),
+                      subtitle: Text(
+                        "${article.code} - ${article.brand}",
+                        style: TextStyle(color: colors.onSurfaceVariant),
+                      ),
                       trailing: Text(
-                          "${article.currency == 'USD' ? '\$' : 'S/'} ${article.price.toStringAsFixed(2)}"),
+                        "${article.currency == 'USD' ? '\$' : 'S/'} ${article.price.toStringAsFixed(2)}",
+                        style: TextStyle(color: colors.primary),
+                      ),
                       onTap: () => close(article),
                     );
                   },
                 ),
               );
 
-              // PASO 3: Si seleccionó algo, aplicamos el nuevo filtro.
-              // Si canceló (selectedArticle == null), ya limpiamos en el Paso 1,
-              // así que la lista completa ya se está cargando.
               if (selectedArticle != null) {
                 ref
                     .read(articlesProvider.notifier)
@@ -185,7 +195,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
                     style: GoogleFonts.roboto(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: colors.outline,
                     ),
                   ),
                   Text(
@@ -231,7 +241,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
         color: colors.surface,
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black54 : Colors.black12,
+            color: colors.onSurface.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -246,8 +256,16 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildSummaryItem('Items', '${draft.totalItems}'),
-                  _buildSummaryItem('Unidades', '${draft.totalUnits}'),
+                  _buildSummaryItem(
+                    'Items',
+                    '${draft.totalItems}',
+                    colors: colors,
+                  ),
+                  _buildSummaryItem(
+                    'Unidades',
+                    '${draft.totalUnits}',
+                    colors: colors,
+                  ),
                   _buildSummaryItem(
                     'Total estimado',
                     'S/ ${draft.totalAmount.toStringAsFixed(2)}',
@@ -269,7 +287,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: colors.onPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -295,17 +313,18 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
     String label,
     String value, {
     bool isTotal = false,
-    ColorScheme? colors,
+    required ColorScheme colors,
   }) {
     return Column(
-      crossAxisAlignment:
-          isTotal ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: isTotal
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label.toUpperCase(),
           style: GoogleFonts.roboto(
             fontSize: 10,
-            color: Colors.grey,
+            color: colors.outline,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -315,7 +334,7 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
           style: GoogleFonts.roboto(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: (isTotal && colors != null) ? colors.primary : null,
+            color: isTotal ? colors.primary : colors.onSurface,
           ),
         ),
       ],

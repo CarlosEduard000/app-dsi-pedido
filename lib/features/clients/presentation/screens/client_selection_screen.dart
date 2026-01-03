@@ -14,7 +14,6 @@ class ClientSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
@@ -24,16 +23,13 @@ class ClientSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: colors.surface,
         leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: isDark ? Colors.white : const Color(0xFF333333),
-          ),
+          icon: Icon(Icons.menu, color: colors.onSurface),
           onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
         title: Text(
           'Modificar cliente',
           style: GoogleFonts.roboto(
-            color: isDark ? Colors.white : const Color(0xFF333333),
+            color: colors.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
@@ -78,11 +74,15 @@ class ClientSelectionScreen extends StatelessWidget {
                                 style: GoogleFonts.roboto(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
+                                  color: colors.onSurface,
                                 ),
                               ),
                               subtitle: Text(
                                 client.documentNumber,
-                                style: GoogleFonts.roboto(fontSize: 12),
+                                style: GoogleFonts.roboto(
+                                  fontSize: 12,
+                                  color: colors.onSurfaceVariant,
+                                ),
                               ),
                               leading: Icon(
                                 Icons.person_outline,
@@ -116,7 +116,7 @@ class ClientSelectionScreen extends StatelessWidget {
                   return Text(
                     '* Clientes asignados a: ${user?.fullName ?? "Cargando..."}',
                     style: GoogleFonts.roboto(
-                      color: Colors.grey,
+                      color: colors.onSurfaceVariant,
                       fontSize: 11,
                       fontStyle: FontStyle.italic,
                     ),
@@ -132,11 +132,12 @@ class ClientSelectionScreen extends StatelessWidget {
                   if (selectedClient != null) {
                     return ClientDetailsView(client: selectedClient);
                   }
-                  return const Center(
+                  return Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Text(
                         'Busque y seleccione un cliente para ver sus datos',
+                        style: TextStyle(color: colors.onSurfaceVariant),
                       ),
                     ),
                   );
@@ -148,7 +149,7 @@ class ClientSelectionScreen extends StatelessWidget {
                 style: GoogleFonts.roboto(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 20),
@@ -190,10 +191,12 @@ class ClientSelectionScreen extends StatelessWidget {
                     onPressed: () async {
                       if (client == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
                               'Primero busque y seleccione un cliente',
+                              style: TextStyle(color: colors.onPrimary),
                             ),
+                            backgroundColor: colors.secondary,
                           ),
                         );
                         return;
@@ -201,10 +204,12 @@ class ClientSelectionScreen extends StatelessWidget {
 
                       if (client.paymentMethods.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
                               'Este cliente no tiene formas de pago asignadas',
+                              style: TextStyle(color: colors.onPrimary),
                             ),
+                            backgroundColor: colors.secondary,
                           ),
                         );
                         return;
@@ -223,12 +228,13 @@ class ClientSelectionScreen extends StatelessWidget {
                               searchLocalList(query, client.paymentMethods),
                           resultBuilder: (context, item, close) {
                             return ListTile(
-                              title: Text(item),
+                              title: Text(
+                                item,
+                                style: TextStyle(color: colors.onSurface),
+                              ),
                               leading: Icon(
                                 Icons.payment,
-                                color: colors.onSurfaceVariant.withValues(
-                                  alpha: 0.5,
-                                ),
+                                color: colors.onSurfaceVariant.withOpacity(0.5),
                               ),
                               onTap: () => close(item),
                             );
@@ -281,8 +287,8 @@ class ClientSelectionScreen extends StatelessWidget {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colors.primary,
-                        disabledBackgroundColor: colors.primary.withOpacity(
-                          0.3,
+                        disabledBackgroundColor: colors.onSurface.withOpacity(
+                          0.12,
                         ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
@@ -292,7 +298,7 @@ class ClientSelectionScreen extends StatelessWidget {
                       child: Text(
                         'CONTINUAR AL CATÁLOGO',
                         style: GoogleFonts.roboto(
-                          color: Colors.white,
+                          color: colors.onPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

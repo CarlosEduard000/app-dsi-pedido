@@ -20,7 +20,11 @@ class CustomMenuActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    
+
+    final effectiveColor = isSelected
+        ? colors.primary
+        : (color ?? colors.onSurface);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -28,23 +32,21 @@ class CustomMenuActionTile extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withOpacity(0.1) : Colors.transparent,
+          color: isSelected
+              ? colors.primary.withOpacity(0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(
-              icon, 
-              color: isSelected ? colors.primary : (color ?? colors.onSurface), 
-              size: 22
-            ),
+            Icon(icon, color: effectiveColor, size: 22),
             const SizedBox(width: 15),
             Text(
               label,
               style: GoogleFonts.roboto(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 15,
-                color: isSelected ? colors.primary : (color ?? colors.onSurface),
+                color: effectiveColor,
               ),
             ),
           ],

@@ -80,7 +80,7 @@ class _InfoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: colors.primary.withValues(alpha: 0.7)),
+        Icon(icon, size: 16, color: colors.primary),
         const SizedBox(width: 6),
         Flexible(
           child: Text(

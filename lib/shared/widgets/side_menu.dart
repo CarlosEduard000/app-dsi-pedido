@@ -33,7 +33,6 @@ class _SideMenuState extends ConsumerState<SideMenu> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                // Header con Logo
                 Padding(
                   padding: EdgeInsets.fromLTRB(20, hasNotch ? 50 : 40, 20, 20),
                   child: Image.asset(
@@ -43,7 +42,6 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                   ),
                 ),
 
-                // Ítems de Navegación dinámicos usando el Widget Custom
                 ...appMenuItems.asMap().entries.map((entry) {
                   int idx = entry.key;
                   MenuItem item = entry.value;
@@ -59,7 +57,6 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                       isSelected: navDrawerIndex == idx,
                       onTap: () {
                         setState(() => navDrawerIndex = idx);
-                        // Limpieza de selección al navegar
                         ref.read(selectedItemProvider.notifier).state = null;
 
                         context.push(item.link);
@@ -72,9 +69,8 @@ class _SideMenuState extends ConsumerState<SideMenu> {
             ),
           ),
 
-          const Divider(height: 1, indent: 20, endIndent: 20),
+          Divider(height: 1, indent: 20, endIndent: 20, color: colors.outline),
 
-          // Sección Inferior: Información de Empresa y Acciones Rápidas
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -83,7 +79,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                 Text(
                   'INVERSIONES LA PASCANA S.A.C',
                   style: GoogleFonts.roboto(
-                    color: colors.onSurfaceVariant.withOpacity(0.7),
+                    color: colors.onSurfaceVariant,
                     fontSize: 11,
                     letterSpacing: 0.3,
                   ),
@@ -99,14 +95,13 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                 Text(
                   'Almacen: Chimpu Ocllo',
                   style: GoogleFonts.roboto(
-                    color: colors.onSurfaceVariant.withOpacity(0.8),
+                    color: colors.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Acciones usando el Widget Custom
                 CustomMenuActionTile(
                   icon: isDark
                       ? Icons.light_mode_outlined
@@ -122,9 +117,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                   icon: Icons.settings_outlined,
                   label: 'Modificar cliente',
                   onTap: () {
-                    // ref.read(selectedItemProvider.notifier).state = null
                     context.go('/client_selection_screen');
-                    // Lógica adicional aquí
                   },
                 ),
 
@@ -133,7 +126,6 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                   label: 'Cerrar sesión',
                   color: colors.error,
                   onTap: () {
-                    // Mostramos el mensaje de confirmación
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -142,14 +134,10 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                           '¿Estás seguro de que deseas salir de la aplicación?',
                         ),
                         actions: [
-                          // Botón para cancelar
                           TextButton(
-                            onPressed: () => Navigator.of(
-                              context,
-                            ).pop(), // Cierra el diálogo
+                            onPressed: () => Navigator.of(context).pop(),
                             child: const Text('Cancelar'),
                           ),
-                          // Botón para confirmar
                           FilledButton(
                             style: FilledButton.styleFrom(
                               backgroundColor: colors.error,
@@ -178,7 +166,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                   'DSI - Catálogo Virtual v. 0.0.1\n© 2026 Todos los derechos reservados.',
                   style: GoogleFonts.roboto(
                     fontSize: 10,
-                    color: colors.onSurfaceVariant.withOpacity(0.5),
+                    color: colors.outline,
                     height: 1.4,
                   ),
                 ),

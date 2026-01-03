@@ -15,6 +15,8 @@ class StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -29,10 +31,10 @@ class StatItem extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 9, 
-            color: Colors.blueGrey,
-            height: 1.2, // Mejora el espaciado en etiquetas de dos líneas
+          style: TextStyle(
+            fontSize: 9,
+            color: colors.onSurfaceVariant,
+            height: 1.2,
           ),
         ),
       ],

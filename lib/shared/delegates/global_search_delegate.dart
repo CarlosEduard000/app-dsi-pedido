@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-// Definimos un callback genérico que devuelve una lista de T
 typedef SearchCallback<T> = Future<List<T>> Function(String query);
-// Definimos cómo se construirá cada item de la lista
-typedef ResultBuilder<T> = Widget Function(BuildContext context, T item, Function(T) close);
+typedef ResultBuilder<T> =
+    Widget Function(BuildContext context, T item, Function(T) close);
 
 class GlobalSearchDelegate<T> extends SearchDelegate<T?> {
   final SearchCallback<T> searchFunction;
@@ -69,7 +68,6 @@ class GlobalSearchDelegate<T> extends SearchDelegate<T?> {
           itemCount: results.length,
           itemBuilder: (context, index) {
             final item = results[index];
-            // Aquí delegamos el diseño del item a quien llame la clase
             return resultBuilder(context, item, (selectedItem) {
               clearStreams();
               close(context, selectedItem);
@@ -82,6 +80,9 @@ class GlobalSearchDelegate<T> extends SearchDelegate<T?> {
 
   @override
   List<Widget>? buildActions(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final iconColor = Theme.of(context).iconTheme.color;
+
     return [
       StreamBuilder(
         initialData: false,
@@ -90,13 +91,20 @@ class GlobalSearchDelegate<T> extends SearchDelegate<T?> {
           if (snapshot.data ?? false) {
             return IconButton(
               onPressed: () => query = '',
-              icon: const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+              icon: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                ),
+              ),
             );
           }
           if (query.isNotEmpty) {
             return IconButton(
               onPressed: () => query = '',
-              icon: const Icon(Icons.clear),
+              icon: Icon(Icons.clear, color: iconColor),
             );
           }
           return const SizedBox.shrink();
@@ -107,12 +115,13 @@ class GlobalSearchDelegate<T> extends SearchDelegate<T?> {
 
   @override
   Widget? buildLeading(BuildContext context) {
+    final iconColor = Theme.of(context).iconTheme.color;
     return IconButton(
       onPressed: () {
         clearStreams();
         close(context, null);
       },
-      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+      icon: Icon(Icons.arrow_back_ios_new_rounded, color: iconColor),
     );
   }
 

@@ -12,11 +12,8 @@ class GlobalDismissKeyboard extends ConsumerWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        // 1. Quitar el foco (Cerrar teclado)
         FocusManager.instance.primaryFocus?.unfocus();
 
-        // 2. Limpiar selección global de producto
-        // Solo lo hacemos si el estado actual no es nulo para evitar repintados innecesarios
         if (ref.read(selectedItemProvider) != null) {
           ref.read(selectedItemProvider.notifier).state = null;
         }

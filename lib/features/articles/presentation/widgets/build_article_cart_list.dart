@@ -1,135 +1,161 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BuildArticleCartList extends StatelessWidget {
-  final List<dynamic> articles; // Lista de artículos en el carrito
+import '../../../orders/presentation/providers/order_draft_provider.dart';
+import 'widgets.dart';
 
-  const BuildArticleCartList({super.key, required this.articles});
+class BuildArticleCartList extends ConsumerWidget {
+  final List<OrderItem> orderItems;
+
+  const BuildArticleCartList({super.key, required this.orderItems});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
 
-    if (articles.isEmpty) {
+    if (orderItems.isEmpty) {
       return Center(
-        child: Text(
-          'No hay artículos en el carrito',
-          style: GoogleFonts.roboto(color: Colors.grey),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 80, color: colors.outline),
+            const SizedBox(height: 20),
+            Text(
+              'Tu carrito está vacío',
+              style: GoogleFonts.roboto(fontSize: 18, color: colors.outline),
+            ),
+          ],
         ),
       );
     }
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: articles.length,
-      separatorBuilder: (context, index) =>
-          const Divider(height: 20, thickness: 0.5),
+      itemCount: orderItems.length,
+      separatorBuilder: (context, index) => const Divider(height: 30),
       itemBuilder: (context, index) {
-        final article = articles[index];
-        return _CartItemTile(article: article, colors: colors);
-      },
-    );
-  }
-}
+        final item = orderItems[index];
+        final article = item.article;
 
-class _CartItemTile extends StatelessWidget {
-  final dynamic article;
-  final ColorScheme colors;
-
-  const _CartItemTile({required this.article, required this.colors});
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isGift = article['isGift'] ?? false;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Miniatura del Artículo
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            Icons.settings_input_component_outlined,
-            color: isGift ? Colors.orange : colors.primary,
-            size: 30,
-          ),
-        ),
-        const SizedBox(width: 12),
-
-        // Información del Artículo
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                article['title'] ?? '',
-                style: GoogleFonts.roboto(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  article.image ?? '',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Icon(
+                        Icons.inventory_2_outlined,
+                        color: colors.onSurfaceVariant,
+                        size: 30,
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colors.primary,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Cód: ${article['code']}',
-                style: GoogleFonts.roboto(fontSize: 11, color: Colors.grey),
-              ),
-              if (isGift)
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'BONIFICACIÓN',
+            ),
+            const SizedBox(width: 15),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.roboto(
-                      fontSize: 9,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: colors.onSurface,
                     ),
                   ),
-                ),
-            ],
-          ),
-        ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Código: ${article.code}',
+                    style: GoogleFonts.roboto(
+                      fontSize: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
 
-        // Cantidad y Precio
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '${article['quantity']} und.',
-              style: GoogleFonts.roboto(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'S/ ${article.price.toStringAsFixed(2)}',
+                        style: GoogleFonts.roboto(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colors.onSurface,
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 90,
+                        child: QuantityInput(
+                          initialValue: item.quantity,
+                          onQuantityChanged: (newVal) {
+                            ref
+                                .read(orderDraftProvider.notifier)
+                                .addOrUpdateItem(article, newVal);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Subtotal: S/ ${(article.price * item.quantity).toStringAsFixed(2)}',
+                      style: GoogleFonts.roboto(
+                        fontSize: 12,
+                        color: colors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              isGift
-                  ? 'S/ 0.00'
-                  : 'S/ ${(article['price'] * article['quantity']).toStringAsFixed(2)}',
-              style: GoogleFonts.roboto(
-                fontSize: 13,
-                color: isGift ? Colors.green : colors.secondary,
-                fontWeight: FontWeight.w500,
-              ),
+
+            IconButton(
+              icon: Icon(Icons.close, size: 20, color: colors.outline),
+              onPressed: () {
+                ref.read(orderDraftProvider.notifier).removeItem(article.id);
+              },
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
