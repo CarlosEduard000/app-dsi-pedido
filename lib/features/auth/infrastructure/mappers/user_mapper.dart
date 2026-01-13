@@ -11,6 +11,7 @@ class UserMapper {
     token: json['token'] ?? '',
     ruc: json['ruc'],
     idVendedor: json['idVendedor'] ?? 0,
+    refreshToken: json['refreshToken'] ?? '',
   );
 
 }

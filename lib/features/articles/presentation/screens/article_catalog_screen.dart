@@ -294,8 +294,9 @@ class _ProductCatalogScreenState extends ConsumerState<ArticleCatalogScreen> {
                     ),
                   ),
                   child: Text(
-                    'CONTINUAR PEDIDO',
+                    'Continuar Pedido',
                     style: GoogleFonts.roboto(
+                      color: colors.secondary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

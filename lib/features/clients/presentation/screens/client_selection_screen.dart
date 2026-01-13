@@ -296,9 +296,9 @@ class ClientSelectionScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'CONTINUAR AL CATÁLOGO',
+                        'Continuar al Catálogo',
                         style: GoogleFonts.roboto(
-                          color: colors.onPrimary,
+                          color: colors.secondary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

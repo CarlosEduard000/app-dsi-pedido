@@ -36,11 +36,11 @@ class AuthDatasourceImpl extends AuthDatasource {
   Future<User> login(int ruc, String id, String password) async {
     try {
       final response = await dio.post(
-        '/login',
+        '/auth/login',
         data: {
-          'ruc': ruc, 
-          'id': id, 
-          'password': password
+          'ruc': ruc.toString(), 
+          'usuario': id, 
+          'pass': password
         },
       );
 

@@ -22,10 +22,10 @@ class OrderDatasourceImpl extends OrderDatasource {
   }) async {
     try {
       final response = await dio.get(
-        '/orders/vendedor/$idVendedor',
+        '/orders/vendedor/',
         queryParameters: {
           'page': page,
-          'limit': 10, // Parámetro añadido para corregir la paginación
+          'offset': 10, // Parámetro añadido para corregir la paginación
         },
       );
 

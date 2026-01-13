@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Order {
+  final int c_vent;
   final String id;
   final String clientRuc;
   final String clientName;
@@ -11,6 +12,7 @@ class Order {
   final int idVendedor;
 
   Order({
+    required this.c_vent,
     required this.id,
     required this.clientRuc,
     required this.clientName,

@@ -4,8 +4,9 @@ class User {
   final String fullName;
   final List<String> roles;
   final String token;
-  final int ruc;
+  final String ruc;
   final int idVendedor;
+  final String refreshToken;
   
   User({
     required this.id,
@@ -14,7 +15,8 @@ class User {
     required this.roles,
     required this.token,
     required this.ruc,
-    this.idVendedor = 0
+    this.idVendedor = 0,
+    required this.refreshToken
   });
 
   bool get isAdmin {

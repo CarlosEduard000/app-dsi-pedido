@@ -25,7 +25,7 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primaryCyan,
       primary: AppColors.primaryCyan,
-      onPrimary: AppColors.surfaceWhite, // Usamos surfaceWhite en lugar de Colors.white
+      onPrimary:  AppColors.surfaceWhite, // Usamos surfaceWhite en lugar de Colors.white
       
       // 1. CORRECCIÓN PRINCIPAL (Textos destacados):
       // Si es DarkMode, usamos surfaceWhite (Blanco). Si es Light, usamos darkBlue.
