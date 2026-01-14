@@ -3,7 +3,7 @@ import '../../domain/domain.dart';
 class OrderMapper {
   
   static Order jsonToEntity(Map<String, dynamic> json) => Order(
-    c_vent: json['c_vent'] ?? 0,
+    cVent: json['c_vent'] ?? 0,
     // Asegúrate de que las llaves ('id', 'ruc', etc) coincidan con tu Postman
     id: json['id'].toString(), 
     clientRuc: json['clientRuc'] ?? json['ruc'] ?? 'Sin RUC',

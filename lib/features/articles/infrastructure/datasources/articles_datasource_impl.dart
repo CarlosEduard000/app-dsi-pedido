@@ -4,6 +4,8 @@ import 'package:app_dsi_pedido/features/articles/infrastructure/errors/article_e
 import 'package:app_dsi_pedido/features/articles/infrastructure/mappers/article_mapper.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../shared/infrastructure/models/api_response.dart';
+
 class ArticlesDatasourceImpl extends ArticlesDatasource {
   late final Dio dio;
   final String accessToken;
@@ -37,15 +39,21 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
         queryParameters: queryParameters,
       );
 
-      final List<Article> articles = [];
-      for (final item in response.data) {
-        articles.add(ArticleMapper.jsonToEntity(item));
+      final apiResponse = ApiResponse<List<dynamic>>.fromJson(response.data);
+
+      if (!apiResponse.success) {
+        throw Exception(apiResponse.message ?? 'Error al obtener artículos');
       }
+
+      final List<dynamic> articlesList = apiResponse.data ?? [];
+
+      final List<Article> articles = articlesList
+          .map((item) => ArticleMapper.jsonToEntity(item))
+          .toList();
 
       return articles;
     } catch (e) {
-      print('Error en getArticles: $e');
-      throw Exception();
+      throw Exception('Error en getArticles: $e');
     }
   }
 
@@ -53,13 +61,26 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
   Future<Article> getArticleById(String id) async {
     try {
       final response = await dio.get('/articles/$id');
-      final article = ArticleMapper.jsonToEntity(response.data);
+
+      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+        response.data,
+      );
+
+      if (!apiResponse.success) {
+        throw Exception(apiResponse.message ?? 'Error al obtener el artículo');
+      }
+
+      if (apiResponse.data == null) {
+        throw ArticleNotFound();
+      }
+
+      final article = ArticleMapper.jsonToEntity(apiResponse.data!);
       return article;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) throw ArticleNotFound();
-      throw Exception();
+      throw Exception('Error de red al obtener artículo: ${e.message}');
     } catch (e) {
-      throw Exception();
+      throw Exception('Error no controlado: $e');
     }
   }
 
@@ -71,14 +92,21 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
 
       final response = await dio.get('/articles', queryParameters: params);
 
-      final List<Article> articles = [];
-      for (final item in response.data) {
-        articles.add(ArticleMapper.jsonToEntity(item));
+      final apiResponse = ApiResponse<List<dynamic>>.fromJson(response.data);
+
+      if (!apiResponse.success) {
+        throw Exception(apiResponse.message ?? 'Error en la búsqueda');
       }
+
+      final List<dynamic> articlesList = apiResponse.data ?? [];
+
+      final List<Article> articles = articlesList
+          .map((item) => ArticleMapper.jsonToEntity(item))
+          .toList();
 
       return articles;
     } catch (e) {
-      throw Exception();
+      throw Exception('Error al buscar artículos: $e');
     }
   }
 }

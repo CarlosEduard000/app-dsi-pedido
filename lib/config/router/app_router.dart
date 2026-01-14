@@ -55,8 +55,6 @@ final appRouterStateProvider = Provider<GoRouter>((ref) {
       ),
     ],
 
-    // Esta parte se comento solo para inciar la app
-    // Lógica de Redirección Automática
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
       final authStatus = goRouterNotifier.authStatus;

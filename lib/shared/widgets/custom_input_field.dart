@@ -168,7 +168,13 @@ class _CustomInputFieldState extends State<CustomInputField> {
                   const SizedBox(width: 8),
                 ],
               ),
+              // --- CORRECCIÓN AQUÍ: Desactivar todos los bordes internos ---
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              // -----------------------------------------------------------
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 12,
                 horizontal: 12,

@@ -1,26 +1,40 @@
 import 'package:dio/dio.dart';
-import 'package:app_dsi_pedido/config/config.dart';
 import 'package:app_dsi_pedido/features/auth/domain/datasources/auth_datasource.dart';
 import 'package:app_dsi_pedido/features/auth/domain/entities/user.dart';
 import 'package:app_dsi_pedido/features/auth/infrastructure/errors/auth_errors.dart';
 import 'package:app_dsi_pedido/features/auth/infrastructure/mappers/user_mapper.dart';
+// Importamos el ApiResponse para usarlo en checkAuthStatus
+import '../../../../shared/infrastructure/models/api_response.dart';
 
 class AuthDatasourceImpl extends AuthDatasource {
-  final dio = Dio(BaseOptions(
-    baseUrl: Environment.apiUrl,
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 5),
-  ));
+  
+  // 1. Inyectamos el Dio que viene configurado con Interceptores y URL base
+  final Dio dio;
+
+  AuthDatasourceImpl({required this.dio});
 
   @override
   Future<User> checkAuthStatus(String token) async {
     try {
       final response = await dio.get(
         '/auth/check-status',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        options: Options(headers: {
+          'Authorization': 'Bearer $token'
+        }),
       );
 
-      return UserMapper.userJsonToEntity(response.data);
+      // 2. Aplicamos ApiResponse aquí (No es login, así que viene encapsulado)
+      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(response.data);
+
+      if (!apiResponse.success) {
+        throw CustomError(apiResponse.message ?? 'Sesión no válida');
+      }
+
+      if (apiResponse.data == null) {
+        throw CustomError('No se pudo recuperar la información del usuario');
+      }
+
+      return UserMapper.userJsonToEntity(apiResponse.data!);
       
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) throw CustomError('Sesión expirada');
@@ -44,6 +58,8 @@ class AuthDatasourceImpl extends AuthDatasource {
         },
       );
 
+      // 3. EXCEPCIÓN: En login mantenemos el mapeo directo
+      // (Según indicación de tu backend, esta respuesta NO usa el wrapper standard)
       if (response.data == null) {
         throw CustomError('El servidor no devolvió información del usuario');
       }
@@ -58,6 +74,7 @@ class AuthDatasourceImpl extends AuthDatasource {
 
     } on DioException catch (e) {
       if (e.response != null) {
+        // Intentamos leer el mensaje de error directamente del mapa de respuesta
         final String errorMessage = e.response?.data['message'] 
                                  ?? e.response?.data['error'] 
                                  ?? 'Credenciales incorrectas';

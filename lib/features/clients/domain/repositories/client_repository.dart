@@ -4,10 +4,10 @@ abstract class ClientRepository {
   Future<List<Client>> getClientsByVendedor(
     int idVendedor, {
     int page = 1,
-    int limit = 10,
+    int offset = 10,
   });
 
-  Future<List<Client>> searchClients(String query, {int limit = 10});
+  Future<List<Client>> searchClients(String query, {int offset = 10});
 
   Future<Client> getClientById(int idCliente);
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../shared/widgets/widgets.dart';
 import '../../../orders/presentation/providers/order_draft_provider.dart';
-import 'widgets.dart';
 
 class BuildArticleCartList extends ConsumerWidget {
   final List<OrderItem> orderItems;

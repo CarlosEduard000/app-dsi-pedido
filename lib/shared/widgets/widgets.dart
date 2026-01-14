@@ -3,5 +3,6 @@ export 'custom_input_field.dart';
 export 'custom_menu_action_tile.dart';
 export 'custom_selectable_card.dart';
 export 'global_dismiss_key_board.dart';
+export 'quantity_input.dart';
 export 'selectable_input_field.dart';
 export 'side_menu.dart';

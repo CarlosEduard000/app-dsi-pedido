@@ -9,12 +9,12 @@ class ClientRepositoryImpl extends ClientRepository {
   Future<List<Client>> getClientsByVendedor(
     int idVendedor, {
     int page = 1,
-    int limit = 10,
+    int offset = 10,
   }) {
     return datasource.getClientsByVendedor(
       idVendedor,
       page: page,
-      limit: limit,
+      offset: offset,
     );
   }
 
@@ -24,7 +24,7 @@ class ClientRepositoryImpl extends ClientRepository {
   }
 
   @override
-  Future<List<Client>> searchClients(String query, {int limit = 10}) {
-    return datasource.searchClients(query, limit: limit);
+  Future<List<Client>> searchClients(String query, {int offset = 10}) {
+    return datasource.searchClients(query, offset: offset);
   }
 }
