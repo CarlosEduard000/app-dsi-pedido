@@ -25,30 +25,18 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primaryCyan,
       primary: AppColors.primaryCyan,
-      onPrimary:  AppColors.surfaceWhite, // Usamos surfaceWhite en lugar de Colors.white
-      
-      // 1. CORRECCIÓN PRINCIPAL (Textos destacados):
-      // Si es DarkMode, usamos surfaceWhite (Blanco). Si es Light, usamos darkBlue.
-      secondary: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue, 
+      onPrimary: AppColors.surfaceWhite,
+      secondary: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
       onSecondary: isDarkmode ? AppColors.darkBlue : AppColors.surfaceWhite,
-      
       tertiary: AppColors.promotionPink,
       onTertiary: AppColors.surfaceWhite,
-      
       error: AppColors.statusRejected,
       onError: AppColors.surfaceWhite,
-      
-      // Superficies
       surface: isDarkmode ? AppColors.surfaceDark : AppColors.surfaceWhite,
-      
-      // 2. CORRECCIÓN (Textos generales):
-      // onSurface controla el color de texto por defecto
       onSurface: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
-      
-      // 3. CORRECCIÓN (Subtítulos y etiquetas):
-      // Usamos textLightGrey en modo oscuro para que sea legible pero sutil
-      onSurfaceVariant: isDarkmode ? AppColors.textLightGrey : AppColors.textGreyBlue,
-      
+      onSurfaceVariant: isDarkmode
+          ? AppColors.textLightGrey
+          : AppColors.textGreyBlue,
       outline: AppColors.textLightGrey,
       brightness: isDarkmode ? Brightness.dark : Brightness.light,
     );
@@ -57,12 +45,9 @@ class AppTheme {
       useMaterial3: true,
       brightness: isDarkmode ? Brightness.dark : Brightness.light,
       colorScheme: colorScheme,
-      
-      // Fondo de pantalla general
       scaffoldBackgroundColor: isDarkmode
-          ? Colors.black // Mantenemos el negro puro para contraste OLED o puedes usar AppColors.surfaceDark
+          ? Colors.black
           : AppColors.backgroundLight,
-
       appBarTheme: AppBarTheme(
         centerTitle: false,
         backgroundColor: isDarkmode
@@ -71,7 +56,6 @@ class AppTheme {
         elevation: 0.5,
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(
-          // Iconos blancos en dark mode, azules en light
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
         ),
         titleTextStyle: TextStyle(
@@ -80,9 +64,7 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
       ),
-
       textTheme: TextTheme(
-        // Títulos Grandes
         displayLarge: TextStyle(
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
           fontWeight: FontWeight.bold,
@@ -95,8 +77,6 @@ class AppTheme {
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
           fontWeight: FontWeight.bold,
         ),
-
-        // Encabezados
         headlineLarge: TextStyle(
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
           fontWeight: FontWeight.bold,
@@ -109,8 +89,6 @@ class AppTheme {
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
           fontWeight: FontWeight.bold,
         ),
-
-        // Títulos de secciones/ListTiles
         titleLarge: TextStyle(
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
           fontWeight: FontWeight.bold,
@@ -120,24 +98,17 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
         titleSmall: TextStyle(
-          // Subtítulos pequeños: Gris claro en dark mode, Azul grisáceo en light
           color: isDarkmode ? AppColors.textLightGrey : AppColors.textGreyBlue,
         ),
-
-        // Cuerpo de texto
         bodyLarge: TextStyle(
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.textGreyBlue,
         ),
         bodyMedium: TextStyle(
-          // Textos normales
           color: isDarkmode ? AppColors.textLightGrey : AppColors.textGreyBlue,
         ),
         bodySmall: TextStyle(
-          // Textos muy pequeños / captions
           color: isDarkmode ? AppColors.textGrey : AppColors.textGrey,
         ),
-
-        // Etiquetas (Botones, Chips)
         labelLarge: TextStyle(
           color: isDarkmode ? AppColors.surfaceWhite : AppColors.textGrey,
           fontWeight: FontWeight.w600,
@@ -149,7 +120,6 @@ class AppTheme {
           color: isDarkmode ? AppColors.textGrey : AppColors.textLightGrey,
         ),
       ),
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryCyan,
@@ -158,7 +128,6 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -173,14 +142,13 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primaryCyan, width: 2),
         ),
         hintStyle: const TextStyle(color: AppColors.textLightGrey),
-        // Etiquetas de Inputs (ej: "Usuario", "Contraseña")
         labelStyle: TextStyle(
-            color: isDarkmode ? AppColors.textLightGrey : AppColors.textGreyBlue), 
+          color: isDarkmode ? AppColors.textLightGrey : AppColors.textGreyBlue,
+        ),
       ),
-
       iconTheme: IconThemeData(
-          color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue), 
-
+        color: isDarkmode ? AppColors.surfaceWhite : AppColors.darkBlue,
+      ),
       dividerTheme: const DividerThemeData(
         color: AppColors.textLightGrey,
         thickness: 0.5,

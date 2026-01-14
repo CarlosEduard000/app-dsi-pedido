@@ -3,19 +3,14 @@ import 'package:formz/formz.dart';
 import '../../../../shared/shared.dart';
 import '../presentation.dart'; 
 
-//! 1 - State del Provider
-// El estado mantiene los Inputs de Formz.
-// Aunque tu User Entity tiene un Ruc int, el formulario maneja "Inputs" (Strings)
-// que luego convertiremos.
 class LoginFormState {
 
   final bool isPosting;
   final bool isFormPosted;
   final bool isValid;
   
-  // Usamos las clases Inputs definidas en shared/infrastructure/inputs/
   final Ruc ruc; 
-  final Username id;      // Mapea al campo 'id' de tu User
+  final Username id; 
   final Password password;
 
   LoginFormState({
@@ -57,18 +52,14 @@ class LoginFormState {
   }
 }
 
-//! 2 - Notifier
 class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
-  // La función de callback debe coincidir con la firma del AuthProvider:
-  // loginUser(int ruc, String id, String password)
   final Future<void> Function(int, String, String) loginUserCallback;
 
   LoginFormNotifier({
     required this.loginUserCallback,
   }): super( LoginFormState() );
 
-  // --- Cambio de RUC ---
   void onRucChange( String value ) {
     final newRuc = Ruc.dirty(value);
     state = state.copyWith(
@@ -77,7 +68,6 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
   }
 
-  // --- Cambio de ID ---
   void onIdChange( String value ) {
     final newId = Username.dirty(value);
     state = state.copyWith(
@@ -86,7 +76,6 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
   }
 
-  // --- Cambio de Password ---
   void onPasswordChange( String value ) {
     final newPassword = Password.dirty(value);
     state = state.copyWith(
@@ -95,7 +84,6 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
   }
 
-  // --- Submit del Formulario ---
   Future<void> onFormSubmit() async {
     _touchEveryField();
 
@@ -103,15 +91,12 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
     state = state.copyWith(isPosting: true);
 
-    // AQUÍ OCURRE LA MAGIA:
-    // Tu Textfield entrega un String, pero tu User Entity y AuthProvider piden un INT.
-    // Hacemos la conversión antes de enviar.
     final int rucInt = int.tryParse(state.ruc.value) ?? 0;
 
     await loginUserCallback( 
-      rucInt,             // int (Coincide con User.ruc)
-      state.id.value,     // String (Coincide con User.id)
-      state.password.value // String (Input de formulario)
+      rucInt,
+      state.id.value,
+      state.password.value
     );
 
     state = state.copyWith(isPosting: false);
@@ -132,10 +117,8 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
   }
 }
 
-//! 3 - StateNotifierProvider
 final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
   
-  // Consumimos el método del AuthProvider
   final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
 
   return LoginFormNotifier(

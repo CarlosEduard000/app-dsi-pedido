@@ -3,12 +3,9 @@ import 'package:app_dsi_pedido/features/auth/domain/datasources/auth_datasource.
 import 'package:app_dsi_pedido/features/auth/domain/entities/user.dart';
 import 'package:app_dsi_pedido/features/auth/infrastructure/errors/auth_errors.dart';
 import 'package:app_dsi_pedido/features/auth/infrastructure/mappers/user_mapper.dart';
-// Importamos el ApiResponse para usarlo en checkAuthStatus
 import '../../../../shared/infrastructure/models/api_response.dart';
 
 class AuthDatasourceImpl extends AuthDatasource {
-  
-  // 1. Inyectamos el Dio que viene configurado con Interceptores y URL base
   final Dio dio;
 
   AuthDatasourceImpl({required this.dio});
@@ -23,7 +20,6 @@ class AuthDatasourceImpl extends AuthDatasource {
         }),
       );
 
-      // 2. Aplicamos ApiResponse aquí (No es login, así que viene encapsulado)
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(response.data);
 
       if (!apiResponse.success) {
@@ -58,8 +54,6 @@ class AuthDatasourceImpl extends AuthDatasource {
         },
       );
 
-      // 3. EXCEPCIÓN: En login mantenemos el mapeo directo
-      // (Según indicación de tu backend, esta respuesta NO usa el wrapper standard)
       if (response.data == null) {
         throw CustomError('El servidor no devolvió información del usuario');
       }
@@ -74,7 +68,6 @@ class AuthDatasourceImpl extends AuthDatasource {
 
     } on DioException catch (e) {
       if (e.response != null) {
-        // Intentamos leer el mensaje de error directamente del mapa de respuesta
         final String errorMessage = e.response?.data['message'] 
                                  ?? e.response?.data['error'] 
                                  ?? 'Credenciales incorrectas';

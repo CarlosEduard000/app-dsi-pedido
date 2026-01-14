@@ -1,7 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_dsi_pedido/config/network/dio_provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../../domain/domain.dart';
-import '../../infrastructure/infrastructure.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../orders.dart';
 
 class OrdersState {
   final List<Order> orders;
@@ -116,25 +117,25 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
         isLastPage: newOrders.length < pageSize,
       );
     } catch (e) {
-      print('Error cargando página $_currentPage: $e');
+      //
     } finally {
       _isLoadingNextPage = false;
     }
   }
 }
 
+final ordersRepositoryProvider = Provider<OrderRepository>((ref) {
+  final dio = ref.watch(dioProvider);
+  final datasource = OrderDatasourceImpl(dio: dio);
+  return OrdersRepositoryImpl(datasource);
+});
+
 final ordersProvider = StateNotifierProvider<OrdersNotifier, OrdersState>((
   ref,
 ) {
-  final authState = ref.watch(authProvider);
-  final user = authState.user;
-
-  final accessToken = user?.token ?? '';
+  final user = ref.watch(authProvider).user;
   final idVendedor = user?.idVendedor ?? 0;
-
-  final ordersRepository = OrderRepositoryImpl(
-    OrderDatasourceImpl(accessToken: accessToken),
-  );
+  final ordersRepository = ref.watch(ordersRepositoryProvider);
 
   return OrdersNotifier(
     ordersRepository: ordersRepository,

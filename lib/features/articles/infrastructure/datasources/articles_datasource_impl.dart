@@ -1,4 +1,3 @@
-import 'package:app_dsi_pedido/config/config.dart';
 import 'package:app_dsi_pedido/features/articles/domain/domain.dart';
 import 'package:app_dsi_pedido/features/articles/infrastructure/errors/article_errors.dart';
 import 'package:app_dsi_pedido/features/articles/infrastructure/mappers/article_mapper.dart';
@@ -7,16 +6,9 @@ import 'package:dio/dio.dart';
 import '../../../../shared/infrastructure/models/api_response.dart';
 
 class ArticlesDatasourceImpl extends ArticlesDatasource {
-  late final Dio dio;
-  final String accessToken;
+  final Dio dio;
 
-  ArticlesDatasourceImpl({required this.accessToken})
-    : dio = Dio(
-        BaseOptions(
-          baseUrl: Environment.apiUrl,
-          headers: {'Authorization': 'Bearer $accessToken'},
-        ),
-      );
+  ArticlesDatasourceImpl({required this.dio});
 
   @override
   Future<List<Article>> getArticles({

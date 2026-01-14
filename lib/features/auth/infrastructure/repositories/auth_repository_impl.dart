@@ -7,7 +7,7 @@ class AuthRepositoryImpl extends AuthRepository {
 
   AuthRepositoryImpl({
     required this.dataSource
-  }); // Eliminamos la parte de ": dataSource = dataSource ?? AuthDatasourceImpl();"
+  });
 
   @override
   Future<User> checkAuthStatus(String token) {

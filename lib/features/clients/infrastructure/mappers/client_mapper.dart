@@ -2,12 +2,10 @@ import '../../domain/domain.dart';
 
 class ClientMapper {
   static Client jsonToEntity(Map<String, dynamic> json) => Client(
-    id: json['c_persona'] ?? 0, // Mapeamos c_persona a id
+    id: json['c_persona'] ?? 0,
     documentType: json['documento'] ?? '',
     documentNumber: json['numero_documento'] ?? '',
     name: json['nombre'] ?? '',
-
-    // Manejo seguro de Listas de Strings
     addresses: json['direccion'] != null
         ? List<String>.from(json['direccion'].map((x) => x.toString()))
         : [],
@@ -20,8 +18,6 @@ class ClientMapper {
     warehouses: json['almacen'] != null
         ? List<String>.from(json['almacen'].map((x) => x.toString()))
         : [],
-
-    // Mapeo de la lista de objetos CreditLine
     creditLines: json['linea_credito'] != null
         ? List<CreditLine>.from(
             json['linea_credito'].map(
@@ -33,7 +29,6 @@ class ClientMapper {
             ),
           )
         : [],
-
     priceCategory: json['categoria_precio'] ?? '',
     classification: json['clasificacion_cliente'] ?? '',
     idVendedor: json['c_vendedor'] ?? 0,

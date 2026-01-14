@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import 'package:app_dsi_pedido/config/network/dio_provider.dart';
 import '../../domain/domain.dart';
 import '../../infrastructure/infrastructure.dart';
 
 final clientsRepositoryProvider = Provider<ClientRepository>((ref) {
-  final accessToken = ref.watch(authProvider).user?.token ?? '';
+  final dio = ref.watch(dioProvider);
 
-  final datasource = ClientDatasourceImpl(accessToken: accessToken);
+  final datasource = ClientDatasourceImpl(dio: dio);
 
   return ClientRepositoryImpl(datasource);
 });

@@ -4,8 +4,7 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 
 final goRouterNotifierProvider = Provider((ref) {
   final notifier = GoRouterNotifier();
-  
-  // Escuchamos los cambios de estado del authProvider
+
   ref.listen(authProvider, (previous, next) {
     notifier.authStatus = next.authStatus;
   });
@@ -19,8 +18,8 @@ class GoRouterNotifier extends ChangeNotifier {
   AuthStatus get authStatus => _authStatus;
 
   set authStatus(AuthStatus value) {
-    if (_authStatus == value) return; // Evita notificaciones innecesarias
+    if (_authStatus == value) return;
     _authStatus = value;
-    notifyListeners(); // Esto es lo que activa el 'redirect' en app_router.dart
+    notifyListeners();
   }
 }

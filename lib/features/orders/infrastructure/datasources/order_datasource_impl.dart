@@ -1,20 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:app_dsi_pedido/config/config.dart';
 import '../../../../shared/infrastructure/models/api_response.dart';
 import '../../domain/domain.dart';
 import '../infrastructure.dart';
 
 class OrderDatasourceImpl extends OrderDatasource {
-  late final Dio dio;
-  final String accessToken;
+  final Dio dio;
 
-  OrderDatasourceImpl({required this.accessToken})
-    : dio = Dio(
-        BaseOptions(
-          baseUrl: Environment.apiUrl,
-          headers: {'Authorization': 'Bearer $accessToken'},
-        ),
-      );
+  OrderDatasourceImpl({required this.dio});
 
   @override
   Future<List<Order>> getOrdersByVendedor(
