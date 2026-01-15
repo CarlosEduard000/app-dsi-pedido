@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../clients/domain/entities/client.dart';
+import '../../../clients/presentation/providers/providers.dart';
 
-class ClientOrderHeader extends StatelessWidget {
+class ClientOrderHeader extends ConsumerWidget {
   final Client? client;
 
   const ClientOrderHeader({super.key, required this.client});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+
+    final selectedWarehouse = ref.watch(selectedWarehouseProvider);
+    final selectedShop = ref.watch(selectedShopProvider);
+    final selectedPayment = ref.watch(selectedPaymentMethodProvider);
 
     return Column(
       children: [
@@ -40,7 +46,7 @@ class ClientOrderHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Almacen: Chimpu Ocllo',
+                    'Almacen: ${selectedWarehouse?.name ?? "---"}',
                     style: GoogleFonts.roboto(
                       fontSize: 12,
                       color: colors.onSurfaceVariant,
@@ -66,7 +72,7 @@ class ClientOrderHeader extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Divider(),
-        _buildStoreInfo(colors),
+        _buildStoreInfo(colors, selectedShop?.name, selectedPayment),
         const SizedBox(height: 5),
         Text(
           '*Puedes editar los datos del cliente',
@@ -79,7 +85,11 @@ class ClientOrderHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildStoreInfo(ColorScheme colors) {
+  Widget _buildStoreInfo(
+    ColorScheme colors,
+    String? shopName,
+    String? paymentMethod,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -96,7 +106,7 @@ class ClientOrderHeader extends StatelessWidget {
                 ),
               ),
               Text(
-                'AV. CHIMPU OCLLO 741 - COMAS',
+                shopName ?? '---',
                 style: GoogleFonts.roboto(
                   fontSize: 11,
                   color: colors.onSurfaceVariant,
@@ -119,7 +129,7 @@ class ClientOrderHeader extends StatelessWidget {
               ),
             ),
             Text(
-              'CONTADO',
+              paymentMethod ?? '---',
               style: GoogleFonts.roboto(
                 fontSize: 11,
                 color: colors.onSurfaceVariant,

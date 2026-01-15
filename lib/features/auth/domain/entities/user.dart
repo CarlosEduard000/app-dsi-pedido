@@ -7,7 +7,7 @@ class User {
   final String ruc;
   final int idVendedor;
   final String refreshToken;
-  
+
   User({
     required this.id,
     required this.email,
@@ -16,7 +16,7 @@ class User {
     required this.token,
     required this.ruc,
     this.idVendedor = 0,
-    required this.refreshToken
+    required this.refreshToken,
   });
 
   bool get isAdmin {

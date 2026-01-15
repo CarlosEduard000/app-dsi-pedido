@@ -24,8 +24,8 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
 
     try {
       final articles = await repository.getArticles(
-        limit: state.limit,
-        offset: state.offset,
+        page: state.page,
+        offset: state.limit,
         query: state.query,
       );
 
@@ -41,16 +41,11 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
           .where((a) => !currentIds.contains(a.id))
           .toList();
 
-      if (newArticles.isEmpty) {
-        state = state.copyWith(isLoading: false, isLastPage: true);
-        return;
-      }
-
       state = state.copyWith(
         isLoading: false,
         isLastPage: articles.length < state.limit,
         articles: [...state.articles, ...newArticles],
-        offset: state.offset + articles.length,
+        page: state.page + 1,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -62,7 +57,7 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
 
     state = state.copyWith(
       query: query,
-      offset: 0,
+      page: 1,
       articles: [],
       isLastPage: false,
       isLoading: false,
@@ -77,7 +72,7 @@ class ArticlesState {
   final bool isLoading;
   final bool isLastPage;
   final int limit;
-  final int offset;
+  final int page;
   final String query;
 
   ArticlesState({
@@ -85,7 +80,7 @@ class ArticlesState {
     this.isLoading = false,
     this.isLastPage = false,
     this.limit = 10,
-    this.offset = 0,
+    this.page = 1,
     this.query = '',
   });
 
@@ -94,14 +89,14 @@ class ArticlesState {
     bool? isLoading,
     bool? isLastPage,
     int? limit,
-    int? offset,
+    int? page,
     String? query,
   }) => ArticlesState(
     articles: articles ?? this.articles,
     isLoading: isLoading ?? this.isLoading,
     isLastPage: isLastPage ?? this.isLastPage,
     limit: limit ?? this.limit,
-    offset: offset ?? this.offset,
+    page: page ?? this.page,
     query: query ?? this.query,
   );
 }

@@ -12,22 +12,22 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
 
   @override
   Future<List<Article>> getArticles({
-    int limit = 10,
-    int offset = 0,
+    int page = 1,
+    int offset = 10,
     String query = '',
   }) async {
     try {
       final Map<String, dynamic> queryParameters = {
-        'limit': limit,
+        'page': page,
         'offset': offset,
       };
 
       if (query.isNotEmpty) {
-        queryParameters['q'] = query;
+        queryParameters['descripcion'] = query;
       }
 
       final response = await dio.get(
-        '/articles',
+        '/articles/list',
         queryParameters: queryParameters,
       );
 
@@ -53,52 +53,42 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
   Future<Article> getArticleById(String id) async {
     try {
       final response = await dio.get('/articles/$id');
-
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,
       );
-
-      if (!apiResponse.success) {
-        throw Exception(apiResponse.message ?? 'Error al obtener el artículo');
-      }
-
-      if (apiResponse.data == null) {
-        throw ArticleNotFound();
-      }
-
-      final article = ArticleMapper.jsonToEntity(apiResponse.data!);
-      return article;
+      if (!apiResponse.success) throw Exception(apiResponse.message);
+      if (apiResponse.data == null) throw ArticleNotFound();
+      return ArticleMapper.jsonToEntity(apiResponse.data!);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) throw ArticleNotFound();
-      throw Exception('Error de red al obtener artículo: ${e.message}');
+      throw Exception('Error de red: ${e.message}');
     } catch (e) {
-      throw Exception('Error no controlado: $e');
+      throw Exception('Error: $e');
     }
   }
 
   @override
   Future<List<Article>> searchArticleByTerm(String term) async {
     try {
-      final Map<String, dynamic> params = {};
-      if (term.isNotEmpty) params['q'] = term;
+      final Map<String, dynamic> params = {
+        'page': 1,
+        'offset': 10,
+        'descripcion': term,
+      };
 
-      final response = await dio.get('/articles', queryParameters: params);
+      final response = await dio.get('/articles/list', queryParameters: params);
 
       final apiResponse = ApiResponse<List<dynamic>>.fromJson(response.data);
 
-      if (!apiResponse.success) {
-        throw Exception(apiResponse.message ?? 'Error en la búsqueda');
-      }
+      if (!apiResponse.success) throw Exception(apiResponse.message);
 
       final List<dynamic> articlesList = apiResponse.data ?? [];
 
-      final List<Article> articles = articlesList
+      return articlesList
           .map((item) => ArticleMapper.jsonToEntity(item))
           .toList();
-
-      return articles;
     } catch (e) {
-      throw Exception('Error al buscar artículos: $e');
+      throw Exception('Error búsqueda: $e');
     }
   }
 }

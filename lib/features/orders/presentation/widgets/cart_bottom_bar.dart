@@ -20,27 +20,10 @@ class CartBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    if (isSummaryView) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        color: colors.surface,
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSummaryRow(draft, colors),
-              const SizedBox(height: 15),
-              _buildButton(
-                text: 'Realizar Pedido',
-                onPressed: draft.items.isEmpty ? null : onConfirm,
-                colors: colors,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final String buttonText = isSummaryView ? 'Realizar Pedido' : 'Continuar';
+    final VoidCallback? buttonAction = isSummaryView
+        ? (draft.items.isEmpty ? null : onConfirm)
+        : onContinue;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -48,7 +31,7 @@ class CartBottomBar extends StatelessWidget {
         color: colors.surface,
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withOpacity(0.12),
+            color: colors.onSurface.withOpacity(0.12),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -61,8 +44,8 @@ class CartBottomBar extends StatelessWidget {
             _buildSummaryRow(draft, colors),
             const SizedBox(height: 15),
             _buildButton(
-              text: 'Continuar',
-              onPressed: onContinue,
+              text: buttonText,
+              onPressed: buttonAction,
               colors: colors,
             ),
           ],

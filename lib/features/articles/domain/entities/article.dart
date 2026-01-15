@@ -32,14 +32,13 @@ class Article {
     this.motorNumber = '',
     this.dua = '',
     this.price = 0.0,
-    this.currency = 'PEN', // Por defecto Soles
+    this.currency = 'PEN',
     this.isGift = false,
     this.quantity = 0,
     this.image,
     this.stock = 0,
   });
-
-  // Método copyWith para crear copias inmutables con cambios específicos
+  
   Article copyWith({
     String? id,
     String? code,

@@ -5,3 +5,4 @@ export 'cart_bottom_bar.dart';
 export 'cart_order_summary.dart';
 export 'cart_tabs_selector.dart';
 export 'client_order_header.dart';
+export 'build_article_cart_list.dart';

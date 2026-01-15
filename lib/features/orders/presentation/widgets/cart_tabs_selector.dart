@@ -47,7 +47,7 @@ class CartTabsSelector extends StatelessWidget {
             boxShadow: active
                 ? [
                     BoxShadow(
-                      color: colors.shadow.withOpacity(0.1),
+                      color: colors.onSurface.withOpacity(0.1),
                       blurRadius: 2,
                     ),
                   ]

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/widgets/widgets.dart';
-import '../../../orders/presentation/providers/order_draft_provider.dart';
+import '../providers/order_draft_provider.dart';
 
 class BuildArticleCartList extends ConsumerWidget {
   final List<OrderItem> orderItems;
@@ -81,7 +81,6 @@ class BuildArticleCartList extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 15),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +104,6 @@ class BuildArticleCartList extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -117,7 +115,6 @@ class BuildArticleCartList extends ConsumerWidget {
                           color: colors.onSurface,
                         ),
                       ),
-
                       SizedBox(
                         width: 90,
                         child: QuantityInput(
@@ -131,7 +128,6 @@ class BuildArticleCartList extends ConsumerWidget {
                       ),
                     ],
                   ),
-
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
@@ -146,7 +142,6 @@ class BuildArticleCartList extends ConsumerWidget {
                 ],
               ),
             ),
-
             IconButton(
               icon: Icon(Icons.close, size: 20, color: colors.outline),
               onPressed: () {

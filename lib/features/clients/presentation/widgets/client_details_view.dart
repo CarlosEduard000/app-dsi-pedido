@@ -81,7 +81,7 @@ class ClientDetailsView extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Linea asignada: ${credit != null ? formatCurrency(credit.assigned) : "N/A"}',
+          'Linea asignada: ${credit != null ? formatCurrency(credit.assigned) : "S/ 0.00"}',
           style: GoogleFonts.roboto(color: colors.outline, fontSize: 13),
         ),
         const SizedBox(height: 4),

@@ -212,6 +212,13 @@ class _CartOrderSummaryState extends State<CartOrderSummary> {
   }
 
   Widget _buildCreditStatusNew(ColorScheme colors) {
+    final credit =
+        (widget.client != null && widget.client!.creditLines.isNotEmpty)
+        ? widget.client!.creditLines.first
+        : null;
+
+    String formatCurrency(double amount) => 'S/ ${amount.toStringAsFixed(2)}';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -225,7 +232,7 @@ class _CartOrderSummaryState extends State<CartOrderSummary> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Linea asignada: S/ 100,000.00',
+          'Linea asignada: ${credit != null ? formatCurrency(credit.assigned) : "S/ 0.00"}',
           style: GoogleFonts.roboto(
             fontSize: 12,
             color: colors.onSurfaceVariant,
@@ -233,7 +240,7 @@ class _CartOrderSummaryState extends State<CartOrderSummary> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Linea disponible: S/ 10,000.00',
+          'Linea disponible: ${credit != null ? formatCurrency(credit.available) : "S/ 0.00"}',
           style: GoogleFonts.roboto(
             fontSize: 16,
             fontWeight: FontWeight.bold,

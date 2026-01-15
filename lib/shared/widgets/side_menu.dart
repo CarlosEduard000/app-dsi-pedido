@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../config/menu/menu_items.dart';
 import '../../features/articles/presentation/presentation.dart';
 import '../../features/auth/auth.dart';
+// IMPORTANTE: Importamos los providers de clientes para obtener la selección actual
+import '../../features/clients/presentation/providers/providers.dart'; 
 import '../providers/providers.dart';
 import 'custom_menu_action_tile.dart';
 
@@ -24,6 +26,10 @@ class _SideMenuState extends ConsumerState<SideMenu> {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
     final colors = Theme.of(context).colorScheme;
     final isDark = ref.watch(themeNotifierProvider).isDarkmode;
+
+    // LEEMOS EL ESTADO ACTUAL DE LA SELECCIÓN
+    final selectedClient = ref.watch(selectedClientProvider);
+    final selectedWarehouse = ref.watch(selectedWarehouseProvider);
 
     return Drawer(
       backgroundColor: colors.surface,
@@ -76,24 +82,29 @@ class _SideMenuState extends ConsumerState<SideMenu> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // NOMBRE DEL CLIENTE (DINÁMICO)
                 Text(
-                  'INVERSIONES LA PASCANA S.A.C',
+                  selectedClient?.name ?? 'SIN CLIENTE SELECCIONADO',
                   style: GoogleFonts.roboto(
                     color: colors.onSurfaceVariant,
                     fontSize: 11,
                     letterSpacing: 0.3,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                // RUC/DNI DEL CLIENTE (DINÁMICO)
                 Text(
-                  '20503225923',
+                  selectedClient?.documentNumber ?? '---',
                   style: GoogleFonts.roboto(
                     fontWeight: FontWeight.w900,
                     fontSize: 18,
                     color: colors.onSurface,
                   ),
                 ),
+                // ALMACÉN SELECCIONADO (DINÁMICO)
                 Text(
-                  'Almacen: Chimpu Ocllo',
+                  'Almacen: ${selectedWarehouse?.name ?? "---"}',
                   style: GoogleFonts.roboto(
                     color: colors.onSurfaceVariant,
                     fontSize: 13,
@@ -115,7 +126,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
 
                 CustomMenuActionTile(
                   icon: Icons.settings_outlined,
-                  label: 'Modificar cliente',
+                  label: 'Seleccionar cliente',
                   onTap: () {
                     context.go('/client_selection_screen');
                   },

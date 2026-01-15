@@ -33,7 +33,10 @@ class OrdersList extends StatelessWidget {
             color: colors.surface,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
-              BoxShadow(color: colors.shadow.withOpacity(0.05), blurRadius: 4),
+              BoxShadow(
+                color: colors.onSurface.withOpacity(0.05),
+                blurRadius: 4,
+              ),
             ],
             border: Border.all(color: colors.outline.withOpacity(0.2)),
           ),

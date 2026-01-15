@@ -6,8 +6,12 @@ class ArticlesRepositoryImpl extends ArticlesRepository {
   ArticlesRepositoryImpl(this.datasource);
 
   @override
-  Future<List<Article>> getArticles({int limit = 10, int offset = 0, String query = ''}) {
-    return datasource.getArticles(limit: limit, offset: offset, query: query);
+  Future<List<Article>> getArticles({
+    int page = 1,
+    int offset = 10,
+    String query = '',
+  }) {
+    return datasource.getArticles(page: page, offset: offset, query: query);
   }
 
   @override

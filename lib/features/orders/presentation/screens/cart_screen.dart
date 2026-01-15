@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/shared.dart';
-import '../../../articles/presentation/widgets/build_article_cart_list.dart';
 import '../../../clients/presentation/providers/providers.dart';
 import '../../presentation/providers/order_draft_provider.dart';
 

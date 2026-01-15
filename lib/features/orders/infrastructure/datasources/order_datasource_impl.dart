@@ -48,7 +48,7 @@ class OrderDatasourceImpl extends OrderDatasource {
   @override
   Future<OrderSummary> getOrderSummary(int idVendedor) async {
     try {
-      final response = await dio.get('/orders/summary/$idVendedor');
+      final response = await dio.get('/orders/summary');
 
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,

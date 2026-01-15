@@ -13,72 +13,54 @@ final appRouterStateProvider = Provider<GoRouter>((ref) {
     initialLocation: '/welcome',
     refreshListenable: goRouterNotifier,
     routes: [
-      // --- Pantalla de Login ---
       GoRoute(
         path: '/welcome',
-        name: WelcomeScreen.name, // "welcome"
+        name: WelcomeScreen.name,
         builder: (context, state) => const WelcomeScreen(),
       ),
-
-      // --- Pantalla de Login ---
       GoRoute(
         path: '/login',
-        name: LoginScreen.name, // "login"
+        name: LoginScreen.name,
         builder: (context, state) => const LoginScreen(),
       ),
-
-      // --- Pantalla de Configuración inicial (Vendedor/Cliente) ---
       GoRoute(
         path: '/client_selection_screen',
-        name: ClientSelectionScreen.name, // "article_setup_screen"
+        name: ClientSelectionScreen.name,
         builder: (context, state) => const ClientSelectionScreen(),
       ),
-
-      // --- Pantalla del Catálogo de Productos ---
       GoRoute(
         path: '/article_catalog',
-        name: ArticleCatalogScreen.name, // "article_catalog_screen"
+        name: ArticleCatalogScreen.name,
         builder: (context, state) => const ArticleCatalogScreen(),
       ),
-
-      // --- Pantalla del Carrito / Resumen del Pedido ---
       GoRoute(
         path: '/cart_screen',
-        name: CartScreen.name, // "cart_screen"
+        name: CartScreen.name,
         builder: (context, state) => const CartScreen(),
       ),
-
       GoRoute(
         path: '/list_order',
-        name: ListOrderScreen.name, // "list_order_screen"
+        name: ListOrderScreen.name,
         builder: (context, state) => const ListOrderScreen(),
       ),
     ],
-
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
       final authStatus = goRouterNotifier.authStatus;
 
-      // 1. Mientras se verifica el token (checking), no redirigir
       if (authStatus == AuthStatus.checking) return null;
 
-      // 2. Si NO está autenticado
       if (authStatus == AuthStatus.notAuthenticated) {
-        // Si ya va al login, dejarlo ir
         if (isGoingTo == '/welcome' || isGoingTo == '/login') return null;
-        // Si intenta ir a cualquier otra parte, forzar al login
         return '/welcome';
       }
 
-      // 3. Si ESTÁ autenticado
       if (authStatus == AuthStatus.authenticated) {
-        // Si está en el login o en la raíz, mandarlo a la primera pantalla útil
         if (isGoingTo == '/welcome' || isGoingTo == '/login') {
           return '/client_selection_screen';
         }
       }
 
-      // De lo contrario, dejar que continúe a su destino
       return null;
     },
   );

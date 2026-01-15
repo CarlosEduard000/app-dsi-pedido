@@ -5,9 +5,7 @@ import 'package:app_dsi_pedido/features/auth/domain/repositories/auth_repository
 class AuthRepositoryImpl extends AuthRepository {
   final AuthDatasource dataSource;
 
-  AuthRepositoryImpl({
-    required this.dataSource
-  });
+  AuthRepositoryImpl({required this.dataSource});
 
   @override
   Future<User> checkAuthStatus(String token) {

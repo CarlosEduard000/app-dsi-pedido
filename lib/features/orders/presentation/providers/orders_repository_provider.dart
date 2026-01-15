@@ -1,7 +1,6 @@
-import '../../domain/domain.dart'; 
+import '../../domain/domain.dart';
 
 class OrdersRepositoryImpl extends OrderRepository {
-
   final OrderDatasource datasource;
 
   OrdersRepositoryImpl(this.datasource);

@@ -1,13 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../../../auth/domain/entities/shops_warehouses.dart';
 import '../../domain/domain.dart';
 import 'clients_repository_provider.dart';
 
 final selectedClientProvider = StateProvider<Client?>((ref) => null);
 
-final selectedPaymentMethodProvider = StateProvider<String?>((ref) => null);
+// CORRECCIÓN: Se quitó .autoDispose para mantener la selección al navegar
+final selectedPaymentMethodProvider = StateProvider<String?>(
+  (ref) => null,
+);
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
+
+// CORRECCIÓN: Se quitó .autoDispose para mantener la selección al navegar
+final selectedShopProvider = StateProvider<Shop?>((ref) => null);
+
+// CORRECCIÓN: Se quitó .autoDispose para mantener la selección al navegar
+final selectedWarehouseProvider = StateProvider<Warehouse?>(
+  (ref) => null,
+);
 
 final searchedClientsProvider =
     StateNotifierProvider<SearchedClientsNotifier, List<Client>>((ref) {

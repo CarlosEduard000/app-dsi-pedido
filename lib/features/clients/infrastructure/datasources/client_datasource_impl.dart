@@ -15,9 +15,16 @@ class ClientDatasourceImpl extends ClientDatasource {
     int offset = 10,
   }) async {
     try {
+      // Backend: /clients/list?page=1&offset=10
+      // Nota: Asumimos que el backend filtra por el vendedor del Token,
+      // por eso no enviamos 'idVendedor' explícitamente en los params,
+      // salvo que el backend lo exija.
       final response = await dio.get(
-        '/clients/vendedor/$idVendedor',
-        queryParameters: {'page': page, 'offset': offset},
+        '/clients/list',
+        queryParameters: {
+          'page': page,
+          'offset': offset,
+        },
       );
 
       final apiResponse = ApiResponse<List<dynamic>>.fromJson(response.data);
@@ -63,9 +70,29 @@ class ClientDatasourceImpl extends ClientDatasource {
   @override
   Future<List<Client>> searchClients(String query, {int offset = 10}) async {
     try {
+      // Lógica de "Búsqueda Inteligente":
+      // Definimos los parámetros base
+      final Map<String, dynamic> params = {
+        'page': 1,      // Al buscar siempre reiniciamos a la página 1
+        'offset': offset
+      };
+
+      if (query.isNotEmpty) {
+        // Expresión regular para saber si son SOLO números (DNI/RUC)
+        final isNumeric = RegExp(r'^[0-9]+$').hasMatch(query);
+
+        if (isNumeric) {
+          // Si son números, usamos el parámetro 'numDoc'
+          params['numDoc'] = query;
+        } else {
+          // Si tiene letras, usamos el parámetro 'nombre'
+          params['nombre'] = query;
+        }
+      }
+
       final response = await dio.get(
-        '/clients/search',
-        queryParameters: {'q': query, 'offset': offset},
+        '/clients/list',
+        queryParameters: params,
       );
 
       final apiResponse = ApiResponse<List<dynamic>>.fromJson(response.data);

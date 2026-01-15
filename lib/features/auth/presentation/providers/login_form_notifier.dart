@@ -1,16 +1,15 @@
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:formz/formz.dart';
 import '../../../../shared/shared.dart';
-import '../presentation.dart'; 
+import '../presentation.dart';
 
 class LoginFormState {
-
   final bool isPosting;
   final bool isFormPosted;
   final bool isValid;
-  
-  final Ruc ruc; 
-  final Username id; 
+
+  final Ruc ruc;
+  final Username id;
   final Password password;
 
   LoginFormState({
@@ -53,58 +52,52 @@ class LoginFormState {
 }
 
 class LoginFormNotifier extends StateNotifier<LoginFormState> {
-
   final Future<void> Function(int, String, String) loginUserCallback;
 
-  LoginFormNotifier({
-    required this.loginUserCallback,
-  }): super( LoginFormState() );
+  LoginFormNotifier({required this.loginUserCallback})
+    : super(LoginFormState());
 
-  void onRucChange( String value ) {
+  void onRucChange(String value) {
     final newRuc = Ruc.dirty(value);
     state = state.copyWith(
       ruc: newRuc,
-      isValid: Formz.validate([ newRuc, state.id, state.password ])
+      isValid: Formz.validate([newRuc, state.id, state.password]),
     );
   }
 
-  void onIdChange( String value ) {
+  void onIdChange(String value) {
     final newId = Username.dirty(value);
     state = state.copyWith(
       id: newId,
-      isValid: Formz.validate([ state.ruc, newId, state.password ])
+      isValid: Formz.validate([state.ruc, newId, state.password]),
     );
   }
 
-  void onPasswordChange( String value ) {
+  void onPasswordChange(String value) {
     final newPassword = Password.dirty(value);
     state = state.copyWith(
       password: newPassword,
-      isValid: Formz.validate([ state.ruc, state.id, newPassword ])
+      isValid: Formz.validate([state.ruc, state.id, newPassword]),
     );
   }
 
   Future<void> onFormSubmit() async {
     _touchEveryField();
 
-    if ( !state.isValid ) return;
+    if (!state.isValid) return;
 
     state = state.copyWith(isPosting: true);
 
     final int rucInt = int.tryParse(state.ruc.value) ?? 0;
 
-    await loginUserCallback( 
-      rucInt,
-      state.id.value,
-      state.password.value
-    );
+    await loginUserCallback(rucInt, state.id.value, state.password.value);
 
     state = state.copyWith(isPosting: false);
   }
 
   void _touchEveryField() {
-    final ruc      = Ruc.dirty(state.ruc.value);
-    final id       = Username.dirty(state.id.value);
+    final ruc = Ruc.dirty(state.ruc.value);
+    final id = Username.dirty(state.id.value);
     final password = Password.dirty(state.password.value);
 
     state = state.copyWith(
@@ -112,16 +105,14 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
       ruc: ruc,
       id: id,
       password: password,
-      isValid: Formz.validate([ ruc, id, password ])
+      isValid: Formz.validate([ruc, id, password]),
     );
   }
 }
 
-final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
-  
-  final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
+      final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
 
-  return LoginFormNotifier(
-    loginUserCallback: loginUserCallback
-  );
-});
+      return LoginFormNotifier(loginUserCallback: loginUserCallback);
+    });
