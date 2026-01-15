@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../../config/config.dart';
 
 class Order {
   final int cVent;
   final String id;
   final String clientRuc;
   final String clientName;
-  final String status; // Ej: 'Aprobado', 'Pendiente', 'Rechazado'
-  final String paymentType; // Ej: 'CONTADO', 'CRED 30'
+  final String status;
+  final String paymentType;
   final double amount;
   final String currency;
   final int idVendedor;
@@ -19,31 +20,28 @@ class Order {
     required this.status,
     required this.paymentType,
     required this.amount,
-    this.currency = 'S/.', // Valor por defecto
-    required this.idVendedor
+    this.currency = 'S/.',
+    required this.idVendedor,
   });
 
-  // Getter para mostrar el importe formateado (Ej: S/. 1,200.00)
   String get amountFormatted => '$currency ${amount.toStringAsFixed(2)}';
 
-  // Getter para obtener el color según el estado (Centraliza la lógica visual)
   Color get statusColor {
     switch (status.toLowerCase()) {
       case 'aprobado':
       case 'despachado':
-        return Colors.greenAccent;
+        return AppColors.statusApproved;
       case 'pendiente':
       case 'picking':
-        return Colors.amber;
+        return AppColors.statusPending;
       case 'rechazado':
       case 'anulado':
-        return Colors.redAccent;
+        return AppColors.statusRejected;
       default:
-        return Colors.grey;
+        return AppColors.textGrey;
     }
   }
 
-  // Getter para un nombre corto del cliente si es muy largo
   String get shortClientName {
     if (clientName.length <= 20) return clientName;
     return '${clientName.substring(0, 17)}...';

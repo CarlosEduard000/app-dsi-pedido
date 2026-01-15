@@ -74,7 +74,7 @@ class LoginCard extends ConsumerWidget {
           const SizedBox(height: 15),
           CustomInputField(
             controller: passwordController,
-            hintText: 'Password',
+            hintText: 'Contraseña',
             prefixIcon: Icons.lock_outline,
             isPassword: true,
             forceUpperCase: false,

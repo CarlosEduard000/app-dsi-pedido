@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../config/config.dart';
 import '../../articles.dart';
 
 class BuildArticleGrid extends StatelessWidget {
@@ -58,6 +59,10 @@ class _ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color stockColor = article.stock > 0
+        ? AppColors.statusStock
+        : colors.error;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -150,20 +155,14 @@ class _ArticleCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              (article.stock > 0
-                                      ? colors.tertiary
-                                      : colors.error)
-                                  .withOpacity(0.1),
+                          color: stockColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           'Stock: ${article.stock}',
                           style: GoogleFonts.roboto(
                             fontSize: 10,
-                            color: article.stock > 0
-                                ? colors.tertiary
-                                : colors.error,
+                            color: stockColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

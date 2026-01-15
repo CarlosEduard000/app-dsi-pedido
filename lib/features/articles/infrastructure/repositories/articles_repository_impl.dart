@@ -10,8 +10,14 @@ class ArticlesRepositoryImpl extends ArticlesRepository {
     int page = 1,
     int offset = 10,
     String query = '',
+    required int warehouseId,
   }) {
-    return datasource.getArticles(page: page, offset: offset, query: query);
+    return datasource.getArticles(
+      page: page,
+      offset: offset,
+      query: query,
+      warehouseId: warehouseId,
+    );
   }
 
   @override
@@ -20,7 +26,10 @@ class ArticlesRepositoryImpl extends ArticlesRepository {
   }
 
   @override
-  Future<List<Article>> searchArticleByTerm(String term) {
-    return datasource.searchArticleByTerm(term);
+  Future<List<Article>> searchArticleByTerm(
+    String term, {
+    required int warehouseId,
+  }) {
+    return datasource.searchArticleByTerm(term, warehouseId: warehouseId);
   }
 }

@@ -1,18 +1,29 @@
 import 'package:flutter_riverpod/legacy.dart';
 import '../../articles.dart';
+import '../../../clients/presentation/providers/providers.dart';
 
 final articlesProvider = StateNotifierProvider<ArticlesNotifier, ArticlesState>(
   (ref) {
     final repository = ref.watch(articlesRepositoryProvider);
-    return ArticlesNotifier(repository: repository);
+
+    final selectedWarehouse = ref.watch(selectedWarehouseProvider);
+
+    return ArticlesNotifier(
+      repository: repository,
+      warehouseId: selectedWarehouse?.id ?? 0,
+    );
   },
 );
 
 class ArticlesNotifier extends StateNotifier<ArticlesState> {
   final ArticlesRepository repository;
+  final int warehouseId;
 
-  ArticlesNotifier({required this.repository}) : super(ArticlesState()) {
-    loadNextPage();
+  ArticlesNotifier({required this.repository, required this.warehouseId})
+    : super(ArticlesState()) {
+    if (warehouseId != 0) {
+      loadNextPage();
+    }
   }
 
   Future<void> loadNextPage() async {
@@ -27,6 +38,7 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
         page: state.page,
         offset: state.limit,
         query: state.query,
+        warehouseId: warehouseId,
       );
 
       if (state.query != requestQuery) return;

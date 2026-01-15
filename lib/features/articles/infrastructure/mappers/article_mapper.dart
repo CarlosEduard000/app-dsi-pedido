@@ -33,6 +33,6 @@ class ArticleMapper {
         int.tryParse(json['cantidad'].toString()) ??
         0,
     image: json['image'] ?? json['imagen'],
-    stock: int.tryParse(json['stock'].toString()) ?? 0,
+    stock: double.tryParse(json['stock'].toString())?.toInt() ?? 0,
   );
 }

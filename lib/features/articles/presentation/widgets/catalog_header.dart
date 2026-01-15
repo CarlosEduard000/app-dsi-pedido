@@ -17,6 +17,8 @@ class CatalogHeader extends ConsumerWidget {
     final articlesState = ref.watch(articlesProvider);
     final client = ref.watch(selectedClientProvider);
 
+    final selectedWarehouse = ref.watch(selectedWarehouseProvider);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
       child: Column(
@@ -37,7 +39,10 @@ class CatalogHeader extends ConsumerWidget {
                   searchFunction: (query) {
                     return ref
                         .read(articlesRepositoryProvider)
-                        .getArticles(query: query);
+                        .getArticles(
+                          query: query,
+                          warehouseId: selectedWarehouse?.id ?? 0,
+                        );
                   },
                   resultBuilder: (context, article, close) {
                     return ListTile(

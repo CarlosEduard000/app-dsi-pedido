@@ -9,15 +9,9 @@ class ClientMapper {
     addresses: json['direccion'] != null
         ? List<String>.from(json['direccion'].map((x) => x.toString()))
         : [],
-    // shops: json['tienda'] != null
-    //     ? List<String>.from(json['tienda'].map((x) => x.toString()))
-    //     : [],
     paymentMethods: (json['forma_cobro'] as List<dynamic>?)
           ?.map((e) => e.toString())
           .toList() ?? [],
-    // warehouses: json['almacen'] != null
-    //     ? List<String>.from(json['almacen'].map((x) => x.toString()))
-    //     : [],
     creditLines: json['linea_credito'] != null
         ? List<CreditLine>.from(
             json['linea_credito'].map(

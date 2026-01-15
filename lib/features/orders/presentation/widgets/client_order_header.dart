@@ -64,7 +64,7 @@ class ClientOrderHeader extends ConsumerWidget {
               ),
               child: IconButton(
                 padding: EdgeInsets.zero,
-                icon: Icon(Icons.settings, color: colors.onPrimary),
+                icon: Icon(Icons.tune, color: colors.onPrimary),
                 onPressed: () => context.push('/client_selection_screen'),
               ),
             ),

@@ -125,7 +125,7 @@ class _SideMenuState extends ConsumerState<SideMenu> {
                 ),
 
                 CustomMenuActionTile(
-                  icon: Icons.settings_outlined,
+                  icon: Icons.person_search,
                   label: 'Seleccionar cliente',
                   onTap: () {
                     context.go('/client_selection_screen');

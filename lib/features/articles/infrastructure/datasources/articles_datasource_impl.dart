@@ -15,11 +15,13 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
     int page = 1,
     int offset = 10,
     String query = '',
+    required int warehouseId,
   }) async {
     try {
       final Map<String, dynamic> queryParameters = {
         'page': page,
         'offset': offset,
+        'c_alm': warehouseId,
       };
 
       if (query.isNotEmpty) {
@@ -68,12 +70,16 @@ class ArticlesDatasourceImpl extends ArticlesDatasource {
   }
 
   @override
-  Future<List<Article>> searchArticleByTerm(String term) async {
+  Future<List<Article>> searchArticleByTerm(
+    String term, {
+    required int warehouseId,
+  }) async {
     try {
       final Map<String, dynamic> params = {
         'page': 1,
         'offset': 10,
         'descripcion': term,
+        'c_alm': warehouseId,
       };
 
       final response = await dio.get('/articles/list', queryParameters: params);

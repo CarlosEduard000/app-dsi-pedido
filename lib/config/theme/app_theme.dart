@@ -8,7 +8,8 @@ class AppColors {
   static const Color textLightGrey = Color(0xFF8898AA);
   static const Color promotionPink = Color(0xFFF82C9C);
   static const Color statusPending = Color(0xFFEBBB1A);
-  static const Color statusApproved = Color(0xFF1AEB6A);
+  static const Color statusApproved = Color(0xFF00C853);
+  static const Color statusStock = Color(0xFF009E4F);
   static const Color statusRejected = Color(0xFFFA4636);
   static const Color backgroundLight = Color(0xFFF8F9FA);
   static const Color surfaceWhite = Color(0xFFFFFFFF);
