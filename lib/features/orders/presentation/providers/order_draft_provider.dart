@@ -35,7 +35,7 @@ class OrderDraftNotifier extends StateNotifier<OrderDraftState> {
 
     final newItems = Map<String, OrderItem>.from(state.items);
 
-    newItems[article.id] = OrderItem(article: article, quantity: quantity);
+    newItems[article.articleId] = OrderItem(article: article, quantity: quantity);
 
     state = state.copyWith(items: newItems);
   }

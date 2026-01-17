@@ -26,6 +26,20 @@ class ClientDetailsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (client.corporation.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2.0),
+            child: Text(
+              client.corporation,
+              style: GoogleFonts.roboto(
+                color: colors.onSurfaceVariant,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         Text(
           client.name,
           style: GoogleFonts.roboto(

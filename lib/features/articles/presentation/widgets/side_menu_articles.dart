@@ -23,19 +23,26 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
     super.initState();
     final article = ref.read(selectedItemProvider);
     if (article != null) {
-      final draftItem = ref.read(orderDraftProvider).items[article.id];
+      // CORRECTO: Recuperamos la cantidad del carrito (Draft), no del Articulo
+      final draftItem = ref.read(orderDraftProvider).items[article.articleId];
       _currentQuantity = draftItem?.quantity ?? 0;
+
+      // Consultamos a la API las promociones de este artículo
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(articlePromotionsProvider.notifier).loadPromotions(article);
+      });
     }
   }
 
   void _saveAndClose(Article article) {
+    // 1. Guardamos en el carrito (OrderDraft)
     ref
         .read(orderDraftProvider.notifier)
         .addOrUpdateItem(article, _currentQuantity);
 
-    ref
-        .read(selectedItemProvider.notifier)
-        .update((state) => state?.copyWith(quantity: _currentQuantity));
+    // ERROR ANTERIOR ELIMINADO:
+    // ref.read(selectedItemProvider.notifier).update(...) 
+    // Ya no actualizamos el 'Article' porque es una entidad inmutable de catálogo.
 
     FocusScope.of(context).unfocus();
     widget.scaffoldKey.currentState?.closeEndDrawer();
@@ -47,6 +54,7 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Article? article = ref.watch(selectedItemProvider);
+    final promotionsState = ref.watch(articlePromotionsProvider);
 
     if (article == null) {
       return Drawer(
@@ -125,8 +133,47 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
                 const SizedBox(height: 25),
                 TechnicalInfoGrid(article: article, colors: colors),
                 const SizedBox(height: 25),
-                if (article.isGift)
+
+                // --- ZONA DE PROMOCIONES ---
+
+                if (promotionsState.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 20),
+                    child: Center(child: LinearProgressIndicator(minHeight: 2)),
+                  ),
+
+                // Tarjeta de REGALO (GiftPromotion)
+                if (!promotionsState.isLoading && promotionsState.giftPromotion != null)
+                  _GiftPinkCard(
+                    colors: colors,
+                    giftQuantity: promotionsState.giftPromotion!.giftQuantity,
+                    giftName: promotionsState.giftPromotion!.giftArticleId,
+                    minBuyCondition: promotionsState.giftPromotion!.minBuyQuantity,
+                    unit: article.unit,
+                  ),
+                
+                // Tarjeta de LIQUIDACIÓN (LiquidationRule)
+                if (!promotionsState.isLoading && promotionsState.liquidationRule != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 25),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEBBB1A).withOpacity(0.1),
+                      border: Border.all(color: const Color(0xFFEBBB1A)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      "Liquidación activa a partir de ${promotionsState.liquidationRule!.minQuantity} unidades.",
+                      style: GoogleFonts.roboto(fontSize: 12, color: colors.onSurface),
+                    ),
+                  ),
+
+                // Banner por defecto
+                if (article.activePromotions.isEmpty)
                   PromotionBanner(colors: colors, quantity: _currentQuantity),
+
+                // -----------------------------
+
                 const SizedBox(height: 25),
                 Text(
                   "Otros Almacenes",
@@ -146,6 +193,104 @@ class _SideMenuArticlesState extends ConsumerState<SideMenuArticles> {
             currentQuantity: _currentQuantity,
             onConfirm: () => _saveAndClose(article),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GiftPinkCard extends StatelessWidget {
+  final ColorScheme colors;
+  final int giftQuantity;
+  final String giftName;
+  final int minBuyCondition;
+  final String unit;
+
+  const _GiftPinkCard({
+    required this.colors,
+    required this.giftQuantity,
+    required this.giftName,
+    required this.minBuyCondition,
+    required this.unit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const pinkColor = Color(0xFFF82C9C); 
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 25),
+      decoration: BoxDecoration(
+        border: Border.all(color: pinkColor, width: 1),
+        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F0F0),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    giftQuantity.toString(),
+                    style: GoogleFonts.roboto(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF0A1F44),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    giftName.toUpperCase(),
+                    style: GoogleFonts.roboto(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0A1F44),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: pinkColor,
+                  ),
+                  child: const Icon(
+                    Icons.star,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: pinkColor.withOpacity(0.1),
+              border: const Border(top: BorderSide(color: pinkColor, width: 0.5)),
+            ),
+            child: Text(
+              "Por la compra de $minBuyCondition $unit",
+              style: GoogleFonts.roboto(
+                fontSize: 11,
+                color: pinkColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
         ],
       ),
     );

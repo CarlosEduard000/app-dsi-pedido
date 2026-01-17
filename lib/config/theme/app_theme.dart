@@ -152,7 +152,7 @@ class AppTheme {
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.textLightGrey,
-        thickness: 0.5,
+        thickness: 0.8,
       ),
     );
   }

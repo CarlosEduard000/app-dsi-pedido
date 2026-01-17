@@ -1,5 +1,5 @@
 class Article {
-  final String id;           // id o c_Art
+  final String articleId;    // id o c_Art
   final String code;         // codigo
   final String name;         // nombre
   final String unit;         // unidad de medida (UM)
@@ -11,15 +11,15 @@ class Article {
   final String subFamily;    // subfamilia
   final String motorNumber;  // nro_motor
   final String dua;          // dua
-  final double price;        // precio
+  final double price;        // precio--------
   final String currency;     // moneda (PEN o USD)
-  final bool isGift;         // esGratis
-  final int quantity;        // cantidad
+  final List<String>activePromotions;         // tiene promociones
+  // final int quantity;        // cantidad------
   final String? image;       // imagen
-  final int stock;           // stock
+  final int stock;           // stock----------
 
   Article({
-    required this.id,
+    required this.articleId,
     this.code = '',
     this.name = '',
     this.unit = 'UNID',
@@ -33,14 +33,14 @@ class Article {
     this.dua = '',
     this.price = 0.0,
     this.currency = 'PEN',
-    this.isGift = false,
-    this.quantity = 0,
+    this.activePromotions = const [],
+    // this.quantity = 0,
     this.image,
     this.stock = 0,
   });
   
   Article copyWith({
-    String? id,
+    String? articleId,
     String? code,
     String? name,
     String? unit,
@@ -54,12 +54,12 @@ class Article {
     String? dua,
     double? price,
     String? currency,
-    bool? isGift,
-    int? quantity,
+    List<String>? activePromotions,
+    // int? quantity,
     String? image,
     int? stock,
   }) => Article(
-    id: id ?? this.id,
+    articleId: articleId ?? this.articleId,
     code: code ?? this.code,
     name: name ?? this.name,
     unit: unit ?? this.unit,
@@ -73,8 +73,8 @@ class Article {
     dua: dua ?? this.dua,
     price: price ?? this.price,
     currency: currency ?? this.currency,
-    isGift: isGift ?? this.isGift,
-    quantity: quantity ?? this.quantity,
+    activePromotions: activePromotions ?? this.activePromotions,
+    // quantity: quantity ?? this.quantity,
     image: image ?? this.image,
     stock: stock ?? this.stock,
   );

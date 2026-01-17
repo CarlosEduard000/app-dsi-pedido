@@ -2,7 +2,7 @@ import '../../domain/domain.dart';
 
 class ArticleMapper {
   static Article jsonToEntity(Map<String, dynamic> json) => Article(
-    id: json['id']?.toString() ?? json['c_Art']?.toString() ?? '',
+    articleId: json['id']?.toString() ?? json['c_Art']?.toString() ?? '',
     code: json['code']?.toString() ?? json['codigo']?.toString() ?? '',
     name:
         json['name']?.toString() ?? json['nombre']?.toString() ?? 'Sin nombre',
@@ -27,11 +27,13 @@ class ArticleMapper {
         0.0,
     currency:
         json['currency']?.toString() ?? json['moneda']?.toString() ?? 'PEN',
-    isGift: json['isGift'] ?? json['esGratis'] ?? false,
-    quantity:
-        int.tryParse(json['quantity'].toString()) ??
-        int.tryParse(json['cantidad'].toString()) ??
-        0,
+    activePromotions: (json['promociones_activas'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .toList() ?? [],
+    // quantity:
+    //     int.tryParse(json['quantity'].toString()) ??
+    //     int.tryParse(json['cantidad'].toString()) ??
+    //     0,
     image: json['image'] ?? json['imagen'],
     stock: double.tryParse(json['stock'].toString())?.toInt() ?? 0,
   );

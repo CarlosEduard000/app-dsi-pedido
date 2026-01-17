@@ -27,6 +27,20 @@ class ClientOrderHeader extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (client != null && client!.corporation.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0),
+                      child: Text(
+                        client!.corporation,
+                        style: GoogleFonts.roboto(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   Text(
                     client?.name ?? 'CLIENTE NO SELECCIONADO',
                     style: GoogleFonts.roboto(

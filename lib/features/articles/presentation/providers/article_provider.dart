@@ -48,9 +48,9 @@ class ArticlesNotifier extends StateNotifier<ArticlesState> {
         return;
       }
 
-      final currentIds = state.articles.map((a) => a.id).toSet();
+      final currentIds = state.articles.map((a) => a.articleId).toSet();
       final newArticles = articles
-          .where((a) => !currentIds.contains(a.id))
+          .where((a) => !currentIds.contains(a.articleId))
           .toList();
 
       state = state.copyWith(

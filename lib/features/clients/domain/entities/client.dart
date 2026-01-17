@@ -15,6 +15,7 @@ class Client {
   final String documentType;
   final String documentNumber;
   final String name;
+  final String corporation;
   final List<String> addresses;
   final List<String> paymentMethods;
   final List<CreditLine> creditLines;
@@ -27,6 +28,7 @@ class Client {
     required this.documentType,
     required this.documentNumber,
     required this.name,
+    required this.corporation,
     required this.addresses,
     required this.paymentMethods,
     required this.creditLines,

@@ -145,7 +145,7 @@ class BuildArticleCartList extends ConsumerWidget {
             IconButton(
               icon: Icon(Icons.close, size: 20, color: colors.outline),
               onPressed: () {
-                ref.read(orderDraftProvider.notifier).removeItem(article.id);
+                ref.read(orderDraftProvider.notifier).removeItem(article.articleId);
               },
             ),
           ],

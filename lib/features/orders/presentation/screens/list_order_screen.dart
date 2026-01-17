@@ -195,7 +195,7 @@ class _ListOrderScreenState extends ConsumerState<ListOrderScreen> {
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  child: Divider(thickness: 0.5),
+                  child: Divider(thickness: 0.8),
                 ),
                 _buildStatsRow(colors, summary),
                 const SizedBox(height: 20),

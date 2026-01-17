@@ -6,6 +6,7 @@ class ClientMapper {
     documentType: json['documento'] ?? '',
     documentNumber: json['numero_documento'] ?? '',
     name: json['nombre'] ?? '',
+    corporation: json['corporacion'] ?? '',
     addresses: json['direccion'] != null
         ? List<String>.from(json['direccion'].map((x) => x.toString()))
         : [],

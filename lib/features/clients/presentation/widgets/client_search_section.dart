@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// --- IMPORTS DE CAPA SHARED (UI Global) ---
 import '../../../../shared/shared.dart';
-
-// --- IMPORTS DE AUTH (Usuario, Entidades y Data de API) ---
 import '../../../auth/auth.dart';
-
-// --- IMPORT DE CLIENTS (Providers de estado: Shop, Warehouse, Client, Payment) ---
 import '../../clients.dart';
 
 class ClientSearchSection extends ConsumerWidget {
@@ -58,7 +53,6 @@ class ClientSearchSection extends ConsumerWidget {
             if (client != null) {
               ref.read(selectedClientProvider.notifier).state = client;
 
-              // Lógica de auto-selección de pago
               if (client.paymentMethods.isNotEmpty) {
                 ref.read(selectedPaymentMethodProvider.notifier).state =
                     client.paymentMethods.first;

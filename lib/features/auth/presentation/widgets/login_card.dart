@@ -130,7 +130,7 @@ class LoginCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 30),
-          const Divider(thickness: 0.5),
+          const Divider(thickness: 0.8),
           const SizedBox(height: 10),
           Text(
             '¿Perdiste tus accesos?',
