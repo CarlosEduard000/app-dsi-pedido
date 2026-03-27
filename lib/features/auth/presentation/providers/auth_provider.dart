@@ -43,7 +43,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await keyValueStorageService.setKeyValue('last_ruc', ruc.toString());
       await keyValueStorageService.setKeyValue('last_id', id);
 
-      _setLoggedUser(user);
+      await _setLoggedUser(user);
     } on CustomError catch (e) {
       logout(e.message);
     } catch (e) {
@@ -58,7 +58,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       final user = await authRepository.checkAuthStatus(token);
-      _setLoggedUser(user);
+      await _setLoggedUser(user);
     } catch (e) {
       logout();
     }
@@ -70,7 +70,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return {'ruc': ruc, 'id': id};
   }
 
-  void _setLoggedUser(User user) async {
+  Future<void> _setLoggedUser(User user) async {
     await keyValueStorageService.setKeyValue('token', user.token);
     await keyValueStorageService.setKeyValue('refreshToken', user.refreshToken);
 

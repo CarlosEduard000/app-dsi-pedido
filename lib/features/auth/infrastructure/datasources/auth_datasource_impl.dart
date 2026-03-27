@@ -15,12 +15,12 @@ class AuthDatasourceImpl extends AuthDatasource {
     try {
       final response = await dio.get(
         '/auth/check-status',
-        options: Options(headers: {
-          'Authorization': 'Bearer $token'
-        }),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(response.data);
+      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+        response.data,
+      );
 
       if (!apiResponse.success) {
         throw CustomError(apiResponse.message ?? 'Sesión no válida');
@@ -31,11 +31,14 @@ class AuthDatasourceImpl extends AuthDatasource {
       }
 
       return UserMapper.userJsonToEntity(apiResponse.data!);
-      
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) throw CustomError('Sesión expirada');
-      if (e.type == DioExceptionType.connectionTimeout) throw CustomError('Error de conexión');
-      
+      if (e.response?.statusCode == 401) {
+        throw CustomError('Sesión expirada');
+      }
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw CustomError('Error de conexión');
+      }
+
       throw CustomError('No se pudo verificar el estado del usuario');
     } catch (e) {
       throw CustomError('Error inesperado al verificar autenticación');
@@ -43,44 +46,39 @@ class AuthDatasourceImpl extends AuthDatasource {
   }
 
   @override
+  @override
   Future<User> login(int ruc, String id, String password) async {
     try {
       final response = await dio.post(
         '/auth/login',
-        data: {
-          'ruc': ruc.toString(), 
-          'usuario': id, 
-          'pass': password
-        },
+        data: {'ruc': ruc.toString(), 'usuario': id, 'pass': password},
       );
 
-      if (response.data == null) {
-        throw CustomError('El servidor no devolvió información del usuario');
-      }
+      final user = UserMapper.userJsonToEntity(
+        Map<String, dynamic>.from(response.data),
+      );
 
-      final user = UserMapper.userJsonToEntity(response.data);
-      
       if (user.token.isEmpty) {
         throw CustomError('Respuesta de usuario inválida (sin token)');
       }
 
       return user;
-
     } on DioException catch (e) {
       if (e.response != null) {
-        final String errorMessage = e.response?.data['message'] 
-                                 ?? e.response?.data['error'] 
-                                 ?? 'Credenciales incorrectas';
+        final data = e.response?.data;
+        final String errorMessage = (data is Map<String, dynamic>)
+            ? ((data['message'] ?? data['error'] ?? 'Credenciales incorrectas')
+                  as String)
+            : 'Credenciales incorrectas';
         throw CustomError(errorMessage);
       }
 
-      if (e.type == DioExceptionType.connectionTimeout || 
+      if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.connectionError) {
         throw CustomError('No hay conexión con el servidor');
       }
 
       throw CustomError('Ocurrió un error en la comunicación');
-
     } catch (e) {
       if (e is CustomError) rethrow;
       throw CustomError('Error al procesar la información del usuario');
